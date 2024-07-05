@@ -1,3 +1,3 @@
-# Mart Backend
+# Products Management
 
-Mart Backend using FastAPI
+Products management using FastAPI
