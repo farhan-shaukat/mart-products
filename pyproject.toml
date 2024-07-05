@@ -2,11 +2,12 @@
 name = "app"
 version = "0.1.0"
 description = ""
-authors = ["Muhammad Aqeel <104295133+Aqeel785@users.noreply.github.com>"]
+authors = ["Farhan Shaukat Ali <farhanshokat@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+fastapi = "^0.111.0"
 
 
 [build-system]
