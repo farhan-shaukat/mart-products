@@ -147,24 +147,6 @@ typer = ">=0.12.3"
 standard = ["fastapi", "uvicorn[standard] (>=0.15.0)"]
 
 [[package]]
-name = "geoalchemy2"
-version = "0.15.1"
-description = "Using SQLAlchemy with Spatial Databases"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "GeoAlchemy2-0.15.1-py3-none-any.whl", hash = "sha256:c1083cc3270608c3d5000a5487069ac9e75ac21a8ef2b7ebc29e060a0d4719ec"},
-    {file = "geoalchemy2-0.15.1.tar.gz", hash = "sha256:33df0cd901abf8518ec0985f9201d42cce65887127cf59f40be38cf758a9a6dc"},
-]
-
-[package.dependencies]
-packaging = "*"
-SQLAlchemy = ">=1.4"
-
-[package.extras]
-shapely = ["Shapely (>=1.7)"]
-
-[[package]]
 name = "greenlet"
 version = "3.0.3"
 description = "Lightweight in-process concurrent programming"
@@ -529,17 +511,6 @@ files = [
     {file = "orjson-3.10.6-cp39-none-win32.whl", hash = "sha256:30b0a09a2014e621b1adf66a4f705f0809358350a757508ee80209b2d8dae219"},
     {file = "orjson-3.10.6-cp39-none-win_amd64.whl", hash = "sha256:49e3bc615652617d463069f91b867a4458114c5b104e13b7ae6872e5f79d0844"},
     {file = "orjson-3.10.6.tar.gz", hash = "sha256:e54b63d0a7c6c54a5f5f726bc93a2078111ef060fec4ecbf34c5db800ca3b3a7"},
-]
-
-[[package]]
-name = "packaging"
-version = "24.1"
-description = "Core utilities for Python packages"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124"},
-    {file = "packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002"},
 ]
 
 [[package]]
@@ -1303,4 +1274,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "5fea6dd6e77888e1ffa87ed9483ee65f5f840e76082203d374aa8aaa6a5e91ce"
+content-hash = "e88280480625c310f652baf49da9ef60be360b3d1c800f8a4e19091bc09a86f4"

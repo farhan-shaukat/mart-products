@@ -1,24 +1,23 @@
+import logging
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from .database import create_db_and_tables
-from .router import item  
+from app.database import create_db_and_tables
+from app.router.item import router as item_router
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
-
-origins = [
-    "http://localhost:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.on_event("startup")
 async def on_startup():
     create_db_and_tables()
 
-app.include_router(item.router) 
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"Response status: {response.status_code}")
+    return response
+
+app.include_router(item_router)

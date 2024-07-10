@@ -1,15 +1,8 @@
 from sqlmodel import Field, SQLModel, Relationship, Session, ForeignKey
 from pydantic import EmailStr
-from typing import List
-from sqlalchemy import Column, String
+from typing import List,Optional
 
 class CreateUser(SQLModel, table=True):
-    userid: int = Field(default=None, primary_key=True)
-    username: str
-    email: EmailStr
-    password: str
-
-class AuthenticateUser(SQLModel, table=True):
     userid: int = Field(default=None, primary_key=True)
     username: str
     email: EmailStr
@@ -27,26 +20,27 @@ class Product(SQLModel, table=True):
     price: float
     fileName: str
     url: str
-    stock_levels: List["StockLevel"] = Relationship(back_populates="product")
 
-class Order(SQLModel, table=True):
-    userId: int = Field(foreign_key="authenticateuser.userid")
+class OrderTable(SQLModel, table=True):
+    userId: int = Field(foreign_key="createuser.userid")
     orderId: int = Field(default=None, primary_key=True)
     productId: int = Field(foreign_key="product.id")
     quantity: int
     productPrice: float
     total_price: float = Field(default=None)
+    order_tracking: Optional["OrderTracking"] = Relationship(back_populates="order")
 
     @property
     def calculate_total_price(self):
         self.total_price = self.quantity * self.productPrice
 
 class OrderTracking(SQLModel, table=True):
-    orderId: int = Field(foreign_key="order.orderId")
+    orderId: int = Field(foreign_key="ordertable.orderId")
     trackingId: int = Field(default=None, primary_key=True)
-    userId: int = Field(foreign_key="authenticateuser.userid")
+    userId: int = Field(foreign_key="createuser.userid")
     latitude : float
     longitude : float
+    order: Optional["OrderTable"] = Relationship(back_populates="order_tracking")
 
 class StockLevel(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
