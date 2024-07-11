@@ -1,43 +1,129 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,File,UploadFile,Form
 from sqlmodel import Session, select
 from app.models import CreateUser, Product, OrderTable, OrderTracking, StockLevel
 from app.database import get_session
+import os
 
 router = APIRouter()
 
+@router.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    file_path = os.path.join(".", "Images", file.filename)
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    # Write the file
+    with open(file_path, "wb") as f:
+        f.write(file.file.read())
+        print(file_path)
+    # Get the compolete path
+    complete_path = os.path.abspath(file_path)
+    return complete_path
+
 @router.post("/UserRegister/", response_model=CreateUser)
-async def create_user(user: CreateUser, session: Session = Depends(get_session)):
-    session.add(user)
+async def create_user(
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    gender: str = Form(...),
+    address: str = Form(...),
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session)
+):
+    
+    img_url = await upload_file(file)
+    user_data = CreateUser(
+        username = username,
+        email = email,
+        password = password,
+        gender = gender,
+        address = address,
+        imgUrl = img_url
+    )
+    
+    db_user = CreateUser(**user_data.dict())
+    
+    session.add(db_user)
     session.commit()
-    session.refresh(user)
-    return user
+    session.refresh(db_user)
+    
+    return db_user
 
 @router.post("/Products/", response_model=Product)
-async def create_product(product: Product, session: Session = Depends(get_session)):
-    session.add(product)
+async def create_product(
+    name: str = Form(...),
+    description: str = Form(...),
+    quantity: int = Form(...),
+    price: float = Form(...),
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session)
+):
+    img_url = await upload_file(file)
+    product = Product(
+        name = name,
+        description = description,
+        quantity = quantity,
+        price = price,
+        imgUrl = img_url
+    )
+    
+    db_prod = Product(**product.dict())
+    
+    session.add(db_prod)
     session.commit()
-    session.refresh(product)
-    return product
+    session.refresh(db_prod)
+    
+    return db_prod
+
 
 @router.post("/Order/", response_model=OrderTable)
-async def create_order(order: OrderTable, session: Session = Depends(get_session)):
-    session.add(order)
+async def create_order(
+    userId: int = Form(...) ,
+    productId: int = Form(...),
+    quantity: int = Form(...),
+    productPrice: float = Form(...),
+    session: Session = Depends(get_session)
+):
+    order = OrderTable(
+        userId = userId,
+        productId = productId,
+        quantity = quantity,
+        productPrice = productPrice
+    )
+    
+    db_order = OrderTable(**order.dict())
+    
+    session.add(db_order)
     session.commit()
-    session.refresh(order)
-    return order
+    session.refresh(db_order)
+    
+    return db_order
 
-@router.post("/OrderTrack/",response_model=OrderTracking)
-async def create_order_track(order_track: OrderTracking, session: Session = Depends(get_session)):
-    latest_order = session.exec(select(OrderTable).order_by(OrderTable.orderId.desc())).first()
-    if not latest_order:
-        raise HTTPException(status_code=404, detail="No orders found to track")
-    order_track.orderId = latest_order.orderId
+@router.post("/OrderTrack/", response_model=OrderTracking)
+async def create_order_track(
+    status: str = Form(...),
+    location: str = Form(...),
+    orderId: int = Form(...),
+    userId: int = Form(...),
+    latitude : float = Form(...),
+    longitude : float = Form(...),
+    session: Session = Depends(get_session)
+):
 
-    session.add(order_track)
+    order_track = OrderTracking(
+        userId = userId,
+        orderId = orderId,
+        status = status,
+        location = location,
+        latitude = latitude,
+        longitude = longitude
+    )
+
+    db_order_track = OrderTracking(**order_track.dict())
+    
+    session.add(db_order_track)
     session.commit()
-    session.refresh(order_track)
-    return order_track
-
+    session.refresh(db_order_track)
+    return db_order_track
 
 
 @router.get("/StockManagement/", response_model=list[StockLevel])
