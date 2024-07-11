@@ -25,12 +25,12 @@ class OrderTable(SQLModel, table=True):
     orderId: int |None = Field(default=None, primary_key=True)
     productId: int = Field(foreign_key="product.id")
     quantity: int
+    productName : str
     productPrice: float
-    # total_price: float = Field(default=None)
+    total_price: float = Field(default = 0.0,index = True)
 
-    # @property
-    # def calculate_total_price(self):
-    #     self.total_price = self.quantity * self.productPrice
+    def calculate_total_price(self):
+        self.total_price = self.quantity * self.productPrice
 
 class OrderTracking(SQLModel, table=True):
     orderId: int = Field(foreign_key="ordertable.orderId")

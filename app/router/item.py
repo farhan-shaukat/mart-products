@@ -80,16 +80,27 @@ async def create_order(
     userId: int = Form(...) ,
     productId: int = Form(...),
     quantity: int = Form(...),
-    productPrice: float = Form(...),
     session: Session = Depends(get_session)
 ):
-    order = OrderTable(
-        userId = userId,
-        productId = productId,
-        quantity = quantity,
-        productPrice = productPrice
-    )
+    product = session.exec(select(Product).where(Product.id == productId)).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
     
+    if quantity > product.quantity:
+        raise HTTPException(status_code=400, detail=f"Quantity exceeds available stock amount is {product.quantity}")
+
+    order = OrderTable(
+        userId=userId,
+        productId=productId,
+        quantity=quantity,
+        productPrice=product.price,
+        productName=product.name
+    )
+
+    order.calculate_total_price()
+
+    product.quantity -= quantity
+
     db_order = OrderTable(**order.dict())
     
     session.add(db_order)
