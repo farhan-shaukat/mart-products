@@ -1,7 +1,6 @@
-# database.py
 from sqlmodel import create_engine, Session, SQLModel
 
-DATABASE_URL = "postgresql+psycopg2://postgres:12345@localhost:5432/ShoppingMall"
+DATABASE_URL = "postgresql://postgres.odmfxwfjkmjqrrcyueqs:G8QmA$GAX4yKhZG@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
 
 # Create the database engine
