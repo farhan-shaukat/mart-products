@@ -1,0 +1,317 @@
+[
+    {
+        "label": "APIRouter",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Depends",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "File",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "UploadFile",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Form",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "create_engine",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModel",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModel",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Product",
+        "importPath": "product.model",
+        "description": "product.model",
+        "isExtraImport": true,
+        "detail": "product.model",
+        "documentation": {}
+    },
+    {
+        "label": "get_session",
+        "importPath": "product.database",
+        "description": "product.database",
+        "isExtraImport": true,
+        "detail": "product.database",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "EmailStr",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "EmailStr",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "OAuth2PasswordBearer",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
+        "documentation": {}
+    },
+    {
+        "label": "httpx",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "httpx",
+        "description": "httpx",
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "create_client",
+        "importPath": "supabase",
+        "description": "supabase",
+        "isExtraImport": true,
+        "detail": "supabase",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "supabase",
+        "description": "supabase",
+        "isExtraImport": true,
+        "detail": "supabase",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "load_dotenv",
+        "importPath": "dotenv",
+        "description": "dotenv",
+        "isExtraImport": true,
+        "detail": "dotenv",
+        "documentation": {}
+    },
+    {
+        "label": "CORSMiddleware",
+        "importPath": "fastapi.middleware.cors",
+        "description": "fastapi.middleware.cors",
+        "isExtraImport": true,
+        "detail": "fastapi.middleware.cors",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "product.router.item",
+        "description": "product.router.item",
+        "isExtraImport": true,
+        "detail": "product.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "kind": 5,
+        "importPath": "product.router.item",
+        "description": "product.router.item",
+        "peekOfCode": "router = APIRouter()\noauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"http://127.0.0.1:8001/token\")\nurl: str = os.getenv(\"SUPABASE_URL\")\nkey: str = os.getenv(\"SUPABASE_KEY\")\nurl: str = os.getenv(\"SUPABASE_URL\")\nkey: str = os.getenv(\"SUPABASE_KEY\")\nsupabase: Client = create_client(url, key)\n@router.get(\"/create_bucket/\")\nasync def createBucket():\n    response = supabase.storage.create_bucket(\"ImtiazMartResources\", {\"public\": True})",
+        "detail": "product.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "oauth2_scheme",
+        "kind": 5,
+        "importPath": "product.router.item",
+        "description": "product.router.item",
+        "peekOfCode": "oauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"http://127.0.0.1:8001/token\")\nurl: str = os.getenv(\"SUPABASE_URL\")\nkey: str = os.getenv(\"SUPABASE_KEY\")\nurl: str = os.getenv(\"SUPABASE_URL\")\nkey: str = os.getenv(\"SUPABASE_KEY\")\nsupabase: Client = create_client(url, key)\n@router.get(\"/create_bucket/\")\nasync def createBucket():\n    response = supabase.storage.create_bucket(\"ImtiazMartResources\", {\"public\": True})\n    return response",
+        "detail": "product.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "get_session",
+        "kind": 2,
+        "importPath": "product.database",
+        "description": "product.database",
+        "peekOfCode": "def get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n# create_db_and_tables()",
+        "detail": "product.database",
+        "documentation": {}
+    },
+    {
+        "label": "create_db_and_tables",
+        "kind": 2,
+        "importPath": "product.database",
+        "description": "product.database",
+        "peekOfCode": "def create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n# create_db_and_tables()",
+        "detail": "product.database",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASE_URL",
+        "kind": 5,
+        "importPath": "product.database",
+        "description": "product.database",
+        "peekOfCode": "DATABASE_URL = os.getenv(\"DATABASE_URL\")\n# Create the database engine\nengine = create_engine(DATABASE_URL, echo=True)\ndef get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables",
+        "detail": "product.database",
+        "documentation": {}
+    },
+    {
+        "label": "engine",
+        "kind": 5,
+        "importPath": "product.database",
+        "description": "product.database",
+        "peekOfCode": "engine = create_engine(DATABASE_URL, echo=True)\ndef get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)",
+        "detail": "product.database",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "product.main",
+        "description": "product.main",
+        "peekOfCode": "app = FastAPI()\n# Configure CORS\norigins = [\n    \"http://localhost:3000\",  \n    \"http://127.0.0.1:8001\"  \n]\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origins,\n    allow_credentials=True,",
+        "detail": "product.main",
+        "documentation": {}
+    },
+    {
+        "label": "origins",
+        "kind": 5,
+        "importPath": "product.main",
+        "description": "product.main",
+        "peekOfCode": "origins = [\n    \"http://localhost:3000\",  \n    \"http://127.0.0.1:8001\"  \n]\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origins,\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],",
+        "detail": "product.main",
+        "documentation": {}
+    },
+    {
+        "label": "Product",
+        "kind": 6,
+        "importPath": "product.model",
+        "description": "product.model",
+        "peekOfCode": "class Product(SQLModel, table=True):\n    id: int| None = Field(default=None, primary_key=True)\n    name: str\n    description: str\n    quantity: int\n    price: float\n    imgUrl: str",
+        "detail": "product.model",
+        "documentation": {}
+    }
+]

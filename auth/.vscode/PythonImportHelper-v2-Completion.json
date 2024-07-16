@@ -1,0 +1,427 @@
+[
+    {
+        "label": "APIRouter",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Depends",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Form",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "create_engine",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModel",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModel",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "auth.model",
+        "description": "auth.model",
+        "isExtraImport": true,
+        "detail": "auth.model",
+        "documentation": {}
+    },
+    {
+        "label": "get_session",
+        "importPath": "auth.database",
+        "description": "auth.database",
+        "isExtraImport": true,
+        "detail": "auth.database",
+        "documentation": {}
+    },
+    {
+        "label": "create_access_token",
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "isExtraImport": true,
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "verify_token",
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "isExtraImport": true,
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "isExtraImport": true,
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "ALGORITHM",
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "isExtraImport": true,
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "CryptContext",
+        "importPath": "passlib.context",
+        "description": "passlib.context",
+        "isExtraImport": true,
+        "detail": "passlib.context",
+        "documentation": {}
+    },
+    {
+        "label": "OAuth2PasswordBearer",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
+        "documentation": {}
+    },
+    {
+        "label": "OAuth2PasswordRequestForm",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "jwt",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
+        "label": "JWTError",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
+        "label": "jwt",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
+        "label": "JWTError",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "CORSMiddleware",
+        "importPath": "fastapi.middleware.cors",
+        "description": "fastapi.middleware.cors",
+        "isExtraImport": true,
+        "detail": "fastapi.middleware.cors",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "isExtraImport": true,
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "get_password_hash",
+        "kind": 2,
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "peekOfCode": "def get_password_hash(password: str) -> str:\n    return pwd_context.hash(password)\ndef verify_password(plain_password: str, hashed_password: str) -> bool:\n    return pwd_context.verify(plain_password, hashed_password)\n@router.post(\"/register\", response_model=User)\nasync def register_user(\n    username: str = Form(...),\n    password: str = Form(...),\n    session: Session = Depends(get_session)\n):",
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "verify_password",
+        "kind": 2,
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "peekOfCode": "def verify_password(plain_password: str, hashed_password: str) -> bool:\n    return pwd_context.verify(plain_password, hashed_password)\n@router.post(\"/register\", response_model=User)\nasync def register_user(\n    username: str = Form(...),\n    password: str = Form(...),\n    session: Session = Depends(get_session)\n):\n    existing_user = session.exec(select(User).where(User.username == username)).first()\n    if existing_user:",
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "kind": 5,
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "peekOfCode": "router = APIRouter()\npwd_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"token\")\ndef get_password_hash(password: str) -> str:\n    return pwd_context.hash(password)\ndef verify_password(plain_password: str, hashed_password: str) -> bool:\n    return pwd_context.verify(plain_password, hashed_password)\n@router.post(\"/register\", response_model=User)\nasync def register_user(\n    username: str = Form(...),",
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "pwd_context",
+        "kind": 5,
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "peekOfCode": "pwd_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"token\")\ndef get_password_hash(password: str) -> str:\n    return pwd_context.hash(password)\ndef verify_password(plain_password: str, hashed_password: str) -> bool:\n    return pwd_context.verify(plain_password, hashed_password)\n@router.post(\"/register\", response_model=User)\nasync def register_user(\n    username: str = Form(...),\n    password: str = Form(...),",
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "oauth2_scheme",
+        "kind": 5,
+        "importPath": "auth.router.item",
+        "description": "auth.router.item",
+        "peekOfCode": "oauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"token\")\ndef get_password_hash(password: str) -> str:\n    return pwd_context.hash(password)\ndef verify_password(plain_password: str, hashed_password: str) -> bool:\n    return pwd_context.verify(plain_password, hashed_password)\n@router.post(\"/register\", response_model=User)\nasync def register_user(\n    username: str = Form(...),\n    password: str = Form(...),\n    session: Session = Depends(get_session)",
+        "detail": "auth.router.item",
+        "documentation": {}
+    },
+    {
+        "label": "create_access_token",
+        "kind": 2,
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "peekOfCode": "def create_access_token(data: dict):\n    to_encode = data.copy()\n    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\ndef verify_token(token: str):\n    credentials_exception = HTTPException(\n        status_code=status.HTTP_401_UNAUTHORIZED,\n        detail=\"Could not validate credentials\",",
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "verify_token",
+        "kind": 2,
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "peekOfCode": "def verify_token(token: str):\n    credentials_exception = HTTPException(\n        status_code=status.HTTP_401_UNAUTHORIZED,\n        detail=\"Could not validate credentials\",\n        headers={\"WWW-Authenticate\": \"Bearer\"},\n    )\n    try:\n        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)\n        username: str = payload.get(\"sub\")\n        if username is None:",
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "kind": 5,
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "peekOfCode": "SECRET_KEY = \"d3282d229b0250d19c5358723f94d9285f9b69c4\"\nALGORITHM = \"HS256\"\nACCESS_TOKEN_EXPIRE_MINUTES = 30 \ndef create_access_token(data: dict):\n    to_encode = data.copy()\n    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\ndef verify_token(token: str):",
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "ALGORITHM",
+        "kind": 5,
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "peekOfCode": "ALGORITHM = \"HS256\"\nACCESS_TOKEN_EXPIRE_MINUTES = 30 \ndef create_access_token(data: dict):\n    to_encode = data.copy()\n    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\ndef verify_token(token: str):\n    credentials_exception = HTTPException(",
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "ACCESS_TOKEN_EXPIRE_MINUTES",
+        "kind": 5,
+        "importPath": "auth.auth_security",
+        "description": "auth.auth_security",
+        "peekOfCode": "ACCESS_TOKEN_EXPIRE_MINUTES = 30 \ndef create_access_token(data: dict):\n    to_encode = data.copy()\n    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\ndef verify_token(token: str):\n    credentials_exception = HTTPException(\n        status_code=status.HTTP_401_UNAUTHORIZED,",
+        "detail": "auth.auth_security",
+        "documentation": {}
+    },
+    {
+        "label": "get_session",
+        "kind": 2,
+        "importPath": "auth.database",
+        "description": "auth.database",
+        "peekOfCode": "def get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n    print(\"TABLE CREATED\")",
+        "detail": "auth.database",
+        "documentation": {}
+    },
+    {
+        "label": "create_db_and_tables",
+        "kind": 2,
+        "importPath": "auth.database",
+        "description": "auth.database",
+        "peekOfCode": "def create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n    print(\"TABLE CREATED\")\n    print(engine)\ncreate_db_and_tables()",
+        "detail": "auth.database",
+        "documentation": {}
+    },
+    {
+        "label": "DATABASE_URL",
+        "kind": 5,
+        "importPath": "auth.database",
+        "description": "auth.database",
+        "peekOfCode": "DATABASE_URL = \"postgresql://postgres.odmfxwfjkmjqrrcyueqs:G8QmA$GAX4yKhZG@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres\"\n# Create the database engine\nengine = create_engine(DATABASE_URL, echo=True)\ndef get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables",
+        "detail": "auth.database",
+        "documentation": {}
+    },
+    {
+        "label": "engine",
+        "kind": 5,
+        "importPath": "auth.database",
+        "description": "auth.database",
+        "peekOfCode": "engine = create_engine(DATABASE_URL, echo=True)\ndef get_session():\n    session = Session(engine)\n    try:\n        yield session\n    finally:\n        session.close()\n# Function to create tables\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)",
+        "detail": "auth.database",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "auth.main",
+        "description": "auth.main",
+        "peekOfCode": "app = FastAPI()\napp.include_router(router)\norigin = [\n    \"http://localhost:3000\",  \n    \"http://127.0.0.1:8000\"  \n]\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origin,\n    allow_credentials=True,",
+        "detail": "auth.main",
+        "documentation": {}
+    },
+    {
+        "label": "origin",
+        "kind": 5,
+        "importPath": "auth.main",
+        "description": "auth.main",
+        "peekOfCode": "origin = [\n    \"http://localhost:3000\",  \n    \"http://127.0.0.1:8000\"  \n]\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origin,\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],",
+        "detail": "auth.main",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 6,
+        "importPath": "auth.model",
+        "description": "auth.model",
+        "peekOfCode": "class User(SQLModel,table=True):\n    id : int | None = Field(default=None,primary_key = True)\n    username : str\n    password : str",
+        "detail": "auth.model",
+        "documentation": {}
+    }
+]

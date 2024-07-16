@@ -7,11 +7,25 @@ from pydantic import EmailStr
 from typing import List
 from fastapi.security import OAuth2PasswordBearer
 import httpx
+from supabase import create_client, Client
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://127.0.0.1:8001/token")
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
+
+@router.get("/create_bucket/")
+async def createBucket():
+    response = supabase.storage.create_bucket("ImtiazMartResources", {"public": True})
+    return response
+
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
@@ -19,17 +33,17 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-
-@router.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
-    file_path = os.path.join(".", "Images", file.filename)
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
-    complete_path = os.path.abspath(file_path)
-    return  complete_path
+    content = await file.read()
+    response = supabase.storage.from_('ImtiazMartResources').upload(file.filename, content)
 
-@router.post("/Products/", response_model = Product, tags = ['Products'])
+    public_url: str | None = None
+    if (response):
+        public_url = supabase.storage.from_('ImtiazMartResources').get_public_url(file.filename)
+        
+    return public_url
+
+@router.post("/add_product/", tags = ['Products'])
 async def create_product(
     name: str = Form(...),
     description: str = Form(...),
@@ -52,7 +66,6 @@ async def create_product(
     session.commit()
     session.refresh(product)
     
-    return product
 
 @router.get("/products/", response_model = List[Product], tags = ['Products'])
 async def read_products(session: Session = Depends(get_session)):
