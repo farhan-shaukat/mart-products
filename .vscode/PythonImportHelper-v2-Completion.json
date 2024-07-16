@@ -1,5 +1,29 @@
 [
     {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "APIRouter",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -305,6 +329,30 @@
         "documentation": {}
     },
     {
+        "label": "OAuth2PasswordBearer",
+        "importPath": "fastapi.security",
+        "description": "fastapi.security",
+        "isExtraImport": true,
+        "detail": "fastapi.security",
+        "documentation": {}
+    },
+    {
+        "label": "jwt",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
+        "label": "JWTError",
+        "importPath": "jose",
+        "description": "jose",
+        "isExtraImport": true,
+        "detail": "jose",
+        "documentation": {}
+    },
+    {
         "label": "create_engine",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -381,7 +429,16 @@
         "kind": 6,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "class createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\ndef AuthenticateUser(db: Session, username: str, password: str):\n    user = db.query(Users).filter(Users.username == username).first()\n    if not user:",
+        "peekOfCode": "class createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\nclass Token(BaseModel):\n    access_token: str\n    token_type: str",
+        "detail": "app.TodoApp.routers.auth",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "kind": 6,
+        "importPath": "app.TodoApp.routers.auth",
+        "description": "app.TodoApp.routers.auth",
+        "peekOfCode": "class Token(BaseModel):\n    access_token: str\n    token_type: str\ndef AuthenticateUser(db: Session, username: str, password: str):\n    user = db.query(Users).filter(Users.username == username).first()\n    if not user:\n        return False\n    if not bcrypt_context.verify(password, user.hashed_password):\n        return False\n    return user",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -390,7 +447,16 @@
         "kind": 2,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "def AuthenticateUser(db: Session, username: str, password: str):\n    user = db.query(Users).filter(Users.username == username).first()\n    if not user:\n        return False\n    if not bcrypt_context.verify(password, user.hashed_password):\n        return False\n    return user\ndef get_db():\n    db = SessionLocal()\n    try:",
+        "peekOfCode": "def AuthenticateUser(db: Session, username: str, password: str):\n    user = db.query(Users).filter(Users.username == username).first()\n    if not user:\n        return False\n    if not bcrypt_context.verify(password, user.hashed_password):\n        return False\n    return user\ndef create_access_token(username: str, user_id: str, expires_delta: timedelta):\n    encode = {\n        \"username\": username,",
+        "detail": "app.TodoApp.routers.auth",
+        "documentation": {}
+    },
+    {
+        "label": "create_access_token",
+        "kind": 2,
+        "importPath": "app.TodoApp.routers.auth",
+        "description": "app.TodoApp.routers.auth",
+        "peekOfCode": "def create_access_token(username: str, user_id: str, expires_delta: timedelta):\n    encode = {\n        \"username\": username,\n        \"id\": user_id,\n        \"exp\": datetime.now(timezone.utc) + expires_delta\n    }\n    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)\nasync def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):\n    try:\n        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -399,7 +465,7 @@
         "kind": 2,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "def get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\ndb_dependency = Annotated[Session, Depends(get_db)]\n@router.post(\"/auth\", status_code=status.HTTP_201_CREATED)\nasync def createUser(db: db_dependency, create_user_request: createUserModel):\n    userInfo = Users(",
+        "peekOfCode": "def get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\ndb_dependency = Annotated[Session, Depends(get_db)]\n@router.post(\"/\", status_code=status.HTTP_201_CREATED)\nasync def createUser(db: db_dependency, create_user_request: createUserModel):\n    userInfo = Users(",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -408,7 +474,25 @@
         "kind": 5,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "router = APIRouter()\nbcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\ndef AuthenticateUser(db: Session, username: str, password: str):",
+        "peekOfCode": "router = APIRouter(\n    prefix='/auth',\n    tags=['auth']\n)\nSECRET_KEY = \"this is my secret key\"\nALGORITHM = \"HS256\"\nbcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')\nclass createUserModel(BaseModel):\n    email: str",
+        "detail": "app.TodoApp.routers.auth",
+        "documentation": {}
+    },
+    {
+        "label": "SECRET_KEY",
+        "kind": 5,
+        "importPath": "app.TodoApp.routers.auth",
+        "description": "app.TodoApp.routers.auth",
+        "peekOfCode": "SECRET_KEY = \"this is my secret key\"\nALGORITHM = \"HS256\"\nbcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str",
+        "detail": "app.TodoApp.routers.auth",
+        "documentation": {}
+    },
+    {
+        "label": "ALGORITHM",
+        "kind": 5,
+        "importPath": "app.TodoApp.routers.auth",
+        "description": "app.TodoApp.routers.auth",
+        "peekOfCode": "ALGORITHM = \"HS256\"\nbcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -417,7 +501,16 @@
         "kind": 5,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "bcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\ndef AuthenticateUser(db: Session, username: str, password: str):\n    user = db.query(Users).filter(Users.username == username).first()",
+        "peekOfCode": "bcrypt_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\noauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\nclass Token(BaseModel):",
+        "detail": "app.TodoApp.routers.auth",
+        "documentation": {}
+    },
+    {
+        "label": "oauth2_bearer",
+        "kind": 5,
+        "importPath": "app.TodoApp.routers.auth",
+        "description": "app.TodoApp.routers.auth",
+        "peekOfCode": "oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')\nclass createUserModel(BaseModel):\n    email: str\n    username: str\n    password: str\n    first_name: str\n    last_name: str\n    role: str\nclass Token(BaseModel):\n    access_token: str",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -426,7 +519,7 @@
         "kind": 5,
         "importPath": "app.TodoApp.routers.auth",
         "description": "app.TodoApp.routers.auth",
-        "peekOfCode": "db_dependency = Annotated[Session, Depends(get_db)]\n@router.post(\"/auth\", status_code=status.HTTP_201_CREATED)\nasync def createUser(db: db_dependency, create_user_request: createUserModel):\n    userInfo = Users(\n        email = create_user_request.email,\n        username = create_user_request.username,\n        hashed_password = bcrypt_context.hash(create_user_request.password),\n        first_name = create_user_request.first_name,\n        last_name = create_user_request.last_name,\n        role = create_user_request.role",
+        "peekOfCode": "db_dependency = Annotated[Session, Depends(get_db)]\n@router.post(\"/\", status_code=status.HTTP_201_CREATED)\nasync def createUser(db: db_dependency, create_user_request: createUserModel):\n    userInfo = Users(\n        email = create_user_request.email,\n        username = create_user_request.username,\n        hashed_password = bcrypt_context.hash(create_user_request.password),\n        first_name = create_user_request.first_name,\n        last_name = create_user_request.last_name,\n        role = create_user_request.role",
         "detail": "app.TodoApp.routers.auth",
         "documentation": {}
     },
@@ -444,7 +537,7 @@
         "kind": 2,
         "importPath": "app.TodoApp.routers.todos",
         "description": "app.TodoApp.routers.todos",
-        "peekOfCode": "def get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\nmodels.Base.metadata.create_all(bind=engine)\ndb_dependency = Annotated[Session, Depends(get_db)]\n@router.get(\"/\", status_code=status.HTTP_200_OK)\nasync def getAllTodos(db: db_dependency):",
+        "peekOfCode": "def get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\nmodels.Base.metadata.create_all(bind=engine)\ndb_dependency = Annotated[Session, Depends(get_db)]\nuser_dependency = Annotated[dict, Depends(get_current_user)]\n@router.get(\"/\", status_code=status.HTTP_200_OK)",
         "detail": "app.TodoApp.routers.todos",
         "documentation": {}
     },
@@ -462,7 +555,16 @@
         "kind": 5,
         "importPath": "app.TodoApp.routers.todos",
         "description": "app.TodoApp.routers.todos",
-        "peekOfCode": "db_dependency = Annotated[Session, Depends(get_db)]\n@router.get(\"/\", status_code=status.HTTP_200_OK)\nasync def getAllTodos(db: db_dependency):\n    return db.query(Todos).all()\n@router.post(\"/addTodo\", status_code=status.HTTP_201_CREATED)\nasync def getAllTodos(db: db_dependency, todo_request: TodoRequest):\n    todo_model = Todos(**todo_request.model_dump())\n    db.add(todo_model)\n    db.commit()\n@router.put(\"/updateTodo/{todo_id}\", status_code=status.HTTP_204_NO_CONTENT)",
+        "peekOfCode": "db_dependency = Annotated[Session, Depends(get_db)]\nuser_dependency = Annotated[dict, Depends(get_current_user)]\n@router.get(\"/\", status_code=status.HTTP_200_OK)\nasync def getAllTodos(db: db_dependency):\n    return db.query(Todos).all()\n@router.post(\"/addTodo\", status_code=status.HTTP_201_CREATED)\nasync def getAllTodos(user: user_dependency,db: db_dependency, todo_request: TodoRequest):\n    if user is None:\n        raise HTTPException(status_code=401, detail='Authentication Failed')\n    todo_model = Todos(**todo_request.model_dump(), owner_id=user.get('id'))",
+        "detail": "app.TodoApp.routers.todos",
+        "documentation": {}
+    },
+    {
+        "label": "user_dependency",
+        "kind": 5,
+        "importPath": "app.TodoApp.routers.todos",
+        "description": "app.TodoApp.routers.todos",
+        "peekOfCode": "user_dependency = Annotated[dict, Depends(get_current_user)]\n@router.get(\"/\", status_code=status.HTTP_200_OK)\nasync def getAllTodos(db: db_dependency):\n    return db.query(Todos).all()\n@router.post(\"/addTodo\", status_code=status.HTTP_201_CREATED)\nasync def getAllTodos(user: user_dependency,db: db_dependency, todo_request: TodoRequest):\n    if user is None:\n        raise HTTPException(status_code=401, detail='Authentication Failed')\n    todo_model = Todos(**todo_request.model_dump(), owner_id=user.get('id'))\n    db.add(todo_model)",
         "detail": "app.TodoApp.routers.todos",
         "documentation": {}
     },
