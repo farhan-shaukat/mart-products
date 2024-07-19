@@ -8,6 +8,7 @@ import httpx
 from supabase import create_client
 import os
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv()
 
@@ -17,24 +18,35 @@ URL = os.getenv("URL")
 API_KEY = os.getenv("API_KEY")
 supabase = create_client(URL, API_KEY)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://127.0.0.1:8001/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8001/token")
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
+        response = await client.get("http://localhost:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 async def upload_file(file: UploadFile) -> str:
     bucket_name = "ImtiazMall"
     file_content = await file.read()
+    original_filename = file.filename
+    unique_filename = original_filename
 
-    # Upload file to Supabase storage
-    response = supabase.storage.from_(bucket_name).upload(file.filename, file_content)
+    # Check if the file exists and change the name if necessary
+    existing_file = supabase.storage.from_(bucket_name).get_public_url(original_filename)
+    if existing_file:
+        unique_filename = f"{uuid.uuid4()}_{original_filename}"
+
+    # Upload the file to Supabase storage
+    response = supabase.storage.from_(bucket_name).upload(unique_filename, file_content)
+    
     if response.status_code != 200:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to upload file")
-    url = supabase.storage.from_(bucket_name).get_public_url(file.filename)
+    
+    # Get the public URL for the uploaded file
+    url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
     return url
+
 
 @router.post("/products_create/", response_model=Product, tags=['Products'])
 async def create_product(

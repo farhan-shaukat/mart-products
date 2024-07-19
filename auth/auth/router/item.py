@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form
 from sqlmodel import Session, select
 from auth.model import User
 from auth.database import get_session
-from auth.auth_security import create_access_token, verify_token, SECRET_KEY, ALGORITHM
+from auth.auth_security import create_access_token, SECRET_KEY, ALGORITHM
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
