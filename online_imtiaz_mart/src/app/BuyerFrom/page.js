@@ -48,6 +48,7 @@ const BuyerForm = () => {
       });
 
       if (response.status == 200) {
+        console.log(response)
         const { access_token } = response.data;
         localStorage.setItem("token", access_token); // Store token in localStorage
         alert("Login successful.");
@@ -55,15 +56,19 @@ const BuyerForm = () => {
         router.push("/Products");
       } else if (response.status == 400) {
         alert("Invalid credentials. Please check your username and password.");
-      } else {
-        alert("Unexpected error occurred.");
+      } else if(response.status == 401) {
+        alert("Please check your username and password.");
+      }
+      else
+      {
+        alert("Unexpected Error")
       }
 
       console.log(response.status);
       console.log(response.statusText);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error in submitting the form.");
+      alert("Error in submitting the form. And Please check your username and password.");
     }
   };
 

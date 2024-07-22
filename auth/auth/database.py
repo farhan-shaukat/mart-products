@@ -1,6 +1,11 @@
 from sqlmodel import create_engine, Session, SQLModel
 
-DATABASE_URL = "postgresql://postgres.odmfxwfjkmjqrrcyueqs:G8QmA$GAX4yKhZG@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+from dotenv import load_dotenv
+import os 
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 # Create the database engine
@@ -16,8 +21,3 @@ def get_session():
 # Function to create tables
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-    print("TABLE CREATED")
-    print(engine)
-
-create_db_and_tables()
-

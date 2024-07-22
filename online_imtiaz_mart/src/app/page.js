@@ -1,9 +1,9 @@
 'use client'
-import AdminForm from "./Component/SignUpForm";
+import ProductDisplay from "@/app/Products/page"
 
 const HomePage = () => {
 
-  return <AdminForm />;
+  return <ProductDisplay/>;
 };
 
 export default HomePage;
