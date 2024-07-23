@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const UpdateProductModal = ({ isOpen, closeModal, product }) => {
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
@@ -30,7 +32,6 @@ const UpdateProductModal = ({ isOpen, closeModal, product }) => {
       if (image) formData.append("file", image);
       const token = localStorage.getItem("token");
 
-
       const response = await axios.put(`http://localhost:8000/products_update/${product.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -39,14 +40,15 @@ const UpdateProductModal = ({ isOpen, closeModal, product }) => {
       });
 
       if (response.status === 200) {
-        alert("Product updated successfully!");
+        toast.success("Product updated successfully!");
         setIsModalOpen(false);
+        window.location.reload()
       } else {
-        alert("Unauthorized: You do not have permission to update this product."); 
+        toast.error("Unauthorized: You do not have permission to update this product.");
       }
     } catch (error) {
-      if (error.response ) {
-        alert("Error updating product.");
+      if (error.response) {
+        toast.error("Error updating product.");
       } 
     }
     router.refresh();
@@ -54,6 +56,7 @@ const UpdateProductModal = ({ isOpen, closeModal, product }) => {
 
   return (
     <>
+      <ToastContainer />
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">

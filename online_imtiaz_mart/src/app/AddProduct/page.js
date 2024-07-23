@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddProductModal = () => {
   const [productName, setProductName] = useState("");
@@ -16,7 +18,7 @@ const AddProductModal = () => {
     e.preventDefault();
 
     if (!image) {
-      alert("Please upload an image.");
+      toast.error("Please upload an image.");
       return;
     }
 
@@ -42,20 +44,20 @@ const AddProductModal = () => {
         }
       );
       if (response.status === 200) {
-        alert("Product added successfully!");
+        toast.success("Product added successfully!");
         router.push("/Products"); // Redirect to Products page
       } else {
-        alert("Unexpected error occurred.");
+        toast.error("Unexpected error occurred.");
       }
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
-          alert("Unauthorized: You do not have permission to add this product.");
+          toast.error("Unauthorized: You do not have permission to add this product.");
         } else if (error.response.status === 422) {
-          alert("Failed to add product. Unprocessable Entity");
+          toast.error("Failed to add product. Unprocessable Entity");
         }
       } else {
-        alert("Network error.");
+        toast.error("Network error.");
       }
     } finally {
       setLoading(false);
@@ -64,6 +66,7 @@ const AddProductModal = () => {
 
   return (
     <div className="inset-0 m-5 items-center justify-center bg-gray-800">
+      <ToastContainer />
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
         <form onSubmit={handleSubmit} className="w-full">
@@ -92,7 +95,7 @@ const AddProductModal = () => {
             <label className="block text-gray-700 font-bold mb-2">Price</label>
             <input
               type="number"
-              step="0.01" 
+              step="0.01"
               className="border border-gray-300 p-2 rounded w-full"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
@@ -114,7 +117,7 @@ const AddProductModal = () => {
             <input
               type="file"
               className="border border-gray-300 p-2 rounded w-full"
-              onChange={(e) => setImage(e.target.files[0])} 
+              onChange={(e) => setImage(e.target.files[0])}
               required
             />
           </div>
@@ -122,7 +125,7 @@ const AddProductModal = () => {
             <button
               type="button"
               className="mr-4 py-2 px-4 rounded bg-gray-500 text-white"
-              onClick={() => router.push("/Products")} 
+              onClick={() => router.push("/Products")}
             >
               Close
             </button>

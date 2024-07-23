@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const BuyerForm = () => {
   const [userName, setUserName] = useState("");
@@ -47,33 +49,27 @@ const BuyerForm = () => {
         },
       });
 
-      if (response.status == 200) {
-        console.log(response)
+      if (response.status === 200) {
         const { access_token } = response.data;
         localStorage.setItem("token", access_token); // Store token in localStorage
-        alert("Login successful.");
-        console.log(localStorage)
+        toast.success("Login successful.");
         router.push("/Products");
-      } else if (response.status == 400) {
-        alert("Invalid credentials. Please check your username and password.");
-      } else if(response.status == 401) {
-        alert("Please check your username and password.");
+      } else if (response.status === 400) {
+        toast.error("Invalid credentials. Please check your username and password.");
+      } else if (response.status === 401) {
+        toast.error("Please check your username and password.");
+      } else {
+        toast.error("Unexpected error occurred.");
       }
-      else
-      {
-        alert("Unexpected Error")
-      }
-
-      console.log(response.status);
-      console.log(response.statusText);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error in submitting the form. And Please check your username and password.");
+      toast.error("Error in submitting the form. Please check your username and password.");
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-800">
+      <ToastContainer />
       <form
         onSubmit={submitForm}
         className="flex flex-col justify-center items-center m-3 bg-gray-900 p-8 gap-4 rounded-lg shadow-lg"

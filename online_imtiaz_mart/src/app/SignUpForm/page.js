@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignUpForm = () => {
   const [userName, setUserName] = useState("");
@@ -48,25 +50,26 @@ const SignUpForm = () => {
         },
       });
 
-      if (response.status == 200) {
-        alert("Your data has been successfully stored.");
+      if (response.status === 200) {
+        toast.success("Your account has been successfully created.");
         router.push("/BuyerFrom");
-      } else if (response.status == 400) {
-        alert("User already exists. Please choose a different username.");
+      } else if (response.status === 400) {
+        toast.error("User already exists. Please choose a different username.");
       } else {
-        alert("Error in submitting the form.");
+        toast.error("Error in submitting the form.");
       }
 
       console.log(response.status);
       console.log(response.statusText);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error in submitting the form.");
+      toast.error("User already exists. Please choose a different username.");
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-800 flex-col">
+      <ToastContainer />
       <form
         onSubmit={submitForm}
         className="flex flex-col justify-center items-center m-3 bg-gray-900 p-8 gap-4 rounded-lg shadow-lg"
