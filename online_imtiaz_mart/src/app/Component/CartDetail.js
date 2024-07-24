@@ -20,12 +20,45 @@ const CartDetail = ({
     setCartItems(carts);
   }, [carts]);
 
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      closeModal();
+    }
+  }, [cartItems, closeModal]);
+
+  // useEffect(() => {
+  //   const checkCartExpiration = () => {
+  //     const savedExpireTime = localStorage.getItem("cart_expire_time");
+  //     const currentTime = new Date().getTime();
+  //     console.log("Current Time\t",currentTime)
+  //     console.log("Expire Time\t",savedExpireTime)
+  //     if ( currentTime > savedExpireTime) {
+  //       clearCart();
+  //     }
+  //   };
+
+  //   const setCartExpiration = () => {
+  //     const expireTime = new Date().getTime() + (2 * 60 * 1000);
+  //     localStorage.setItem("cart_expire_time", expireTime);
+  //   };
+  //   setCartExpiration();
+  //   const interval = setInterval(checkCartExpiration(),1000)
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  // const clearCart = () => {
+  //   setCartItems([]);
+  //   setCart([]);
+  //   localStorage.removeItem("cart_expire_time");
+  // };
+
   const totalBill = () => {
     return cartItems.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     );
   };
+
   const updateProductQuantity = (id, change) => {
     // Find the product and its current quantity
     const product = products.find((p) => p.id === id);
@@ -55,9 +88,6 @@ const CartDetail = ({
     const updatedProducts = products.map((p) => {
       if (p.id === id && p.quantity >= 0) {
         const newProductQuantity = p.quantity - change;
-        console.log("new", newProductQuantity);
-        console.log("Prod", p.quantity);
-        console.log("change", change);
 
         if (productQuantity <= productQuantity) {
           return { ...p, quantity: newProductQuantity };
@@ -68,10 +98,10 @@ const CartDetail = ({
 
     // Update the state or context with new cart and products
     setCartItems(updatedCart);
-    console.log(updatedCart);
     setCart(updatedCart);
 
     setProducts(updatedProducts);
+
   };
 
   return isModalOpen ? (
@@ -123,9 +153,7 @@ const CartDetail = ({
             ))}
           </ul>
         ) : (
-          <p className="text-center text-gray-600 mt-4">
-            No items in the cart.
-          </p>
+          <p className="text-center text-gray-600 mt-4">No items in the cart.</p>
         )}
         <div className="mt-6 font-bold text-xl flex justify-between items-center">
           <button
