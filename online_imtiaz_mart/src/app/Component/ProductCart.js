@@ -19,8 +19,8 @@ const ProductCart = ({ Prod }) => {
       <div className="text-center">
         <h3 className="text-xl font-bold">Product Name: {Prod.name}</h3>
         <p className="text-gray-600">Product Description: {Prod.description}</p>
-        <p className="text-gray-600">Product Price: {Prod.price}</p>
-        { token &&  <p className="text-gray-600">Quantity: {Prod.quantity}</p>}
+        <p className="text-gray-600">Product Price: Rs {Prod.price}</p>
+        {  <p className="text-gray-600">Quantity: {Prod.quantity}</p>}
         
       </div>
     </div>

@@ -8,8 +8,9 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import CartDetail from "../Component/CartDetail";
+import OrderDetail from "../Component/OrderDetail";
 
 const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,17 +31,14 @@ const Page = () => {
       }
     };
     fetchProducts();
-
-    const storedToken = localStorage.getItem("token");
+    const storedToken = window.localStorage.getItem("token");
     setToken(storedToken);
 
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
+    const storedCart = window.localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -56,7 +54,7 @@ const Page = () => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = window.localStorage.getItem("token");
       const response = await axios.delete(
         `http://localhost:8000/products_delete/${id}`,
         {
@@ -67,7 +65,9 @@ const Page = () => {
       if (response.status === 200) {
         toast.success("Product deleted successfully!");
       } else {
-        toast.error("Unauthorized: You do not have permission to delete this product.");
+        toast.error(
+          "Unauthorized: You do not have permission to delete this product."
+        );
       }
       router.refresh();
     } catch (error) {
@@ -82,19 +82,26 @@ const Page = () => {
 
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
+      // Find if the product is already in the cart
       const existingProduct = prevCart.find((item) => item.id === product.id);
 
-      if (existingProduct) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
+      // Update the cart based on whether the product exists or not
+      const updatedCart = existingProduct
+        ? prevCart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        : [...prevCart, { ...product, quantity: 1 }];
+
+      // Update local storage
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+      // Return the updated cart
+      return updatedCart;
     });
 
+    // Update the product quantities
     setProducts((prevProducts) =>
       prevProducts.map((item) =>
         item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
@@ -108,29 +115,24 @@ const Page = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const handleCartDelete = (quantityFordel,id) => {
+  const handleCartDelete = (quantityFordel, id) => {
     // Find the cart item to delete
     const cartItem = cart.find((cart) => cart.id === id);
-    console.log(cartItem)
     if (!cartItem) return;
-  
+
     // Find the product and restore its original quantity
     const updatedProducts = products.map((product) => {
       if (product.id === id) {
-        console.log("Cart Item ",quantityFordel)
-        console.log("Product",product.quantity)
         return { ...product, quantity: product.quantity + quantityFordel };
       }
       return product;
     });
-  
+
     // Update the cart items
     const updatedCart = cart.filter((item) => item.id !== id);
     setCart(updatedCart);
     setProducts(updatedProducts);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
-  
 
   return (
     <div>
@@ -156,7 +158,10 @@ const Page = () => {
             <div className="flex items-center">
               <div className="flex items-center">
                 <FontAwesomeIcon icon={faCartShopping} className="text-xl" />
-                <span className="ml-2 text-lg cursor-pointer" onClick={() => setIsOpen(true)}>
+                <span
+                  className="ml-2 text-lg cursor-pointer"
+                  onClick={openModal}
+                >
                   Shopping Cart -- {getTotalQuantity()}
                 </span>
               </div>
@@ -170,43 +175,47 @@ const Page = () => {
           )}
         </div>
         <div className="flex flex-wrap justify-center">
-          {products
-            .filter((product) => token || product.quantity > 0)
-            .map((product) => (
-              <div
-                key={product.id}
-                className="m-4 p-4 max-w-xs border border-gray-300 rounded-lg shadow-lg"
-              >
-                <ProductCart Prod={product} />
-                <div className="flex flex-wrap justify-center p-6">
-                  {!token ? (
-                    <>
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="m-4 p-4 max-w-xs border border-gray-300 rounded-lg shadow-lg"
+            >
+              <ProductCart Prod={product} />
+              <div className="flex flex-wrap justify-center p-6">
+                {!token ? (
+                  <>
+                    {product.quantity > 0 ? (
                       <button
                         className="mt-4 py-2 px-4 rounded-lg font-bold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
                         onClick={() => handleAddToCart(product)}
                       >
                         Add to Cart
                       </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="mt-4 py-2 px-4 rounded-lg font-bold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
-                        onClick={() => handleUpdate(product)}
-                      >
-                        Update Product
-                      </button>
-                      <button
-                        className="mt-4 py-2 px-4 rounded-lg font-bold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        Delete Product
-                      </button>
-                    </>
-                  )}
-                </div>
+                    ) : (
+                      <p className="mt-4 py-2 px-4 rounded-lg font-bold text-red-500">
+                        Out of Stock
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="mt-4 py-2 px-4 rounded-lg font-bold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
+                      onClick={() => handleUpdate(product)}
+                    >
+                      Update Product
+                    </button>
+                    <button
+                      className="mt-4 py-2 px-4 rounded-lg font-bold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      Delete Product
+                    </button>
+                  </>
+                )}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
         {token && (
           <div className="flex text-center justify-center mb-4">
@@ -215,7 +224,7 @@ const Page = () => {
             </button>
           </div>
         )}
-        {selectedProduct && (
+        {selectedProduct && token && (
           <UpdateProductModal
             isOpen={isOpen}
             closeModal={closeModal}
@@ -224,16 +233,16 @@ const Page = () => {
         )}
         {!token && (
           <CartDetail
-          isOpen = {isOpen}
-          closeModal = {closeModal}
-          carts = {cart}
-          products = {products}
-          setProducts = {setProducts}
-          handleDelete = {handleCartDelete}
-          setCart = {setCart}
-        />
-        
+            isOpen={isOpen}
+            closeModal={closeModal}
+            carts={cart}
+            products={products}
+            setProducts={setProducts}
+            handleDelete={handleCartDelete}
+            setCart={setCart}
+          />
         )}
+
       </div>
     </div>
   );

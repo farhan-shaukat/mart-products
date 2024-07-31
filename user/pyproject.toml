@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "auth"
+name = "user"
 version = "0.1.0"
 description = ""
 authors = ["Muhammad Aqeel <104295133+Aqeel785@users.noreply.github.com>"]
@@ -8,16 +8,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.111.1"
-uvicorn = "^0.30.1"
-sqlmodel = "^0.0.19"
-passlib = "^1.7.4"
+uvicorn = "^0.30.3"
+sqlmodel = "^0.0.21"
 psycopg2 = "^2.9.9"
-jwt = "^1.3.1"
-decouple = "^0.0.7"
-pyjwt = "^2.8.0"
-config = "^0.5.1"
-python-jose = "^3.3.0"
-bcrypt = "^4.2.0"
+supabase = "^2.5.3"
 
 
 [build-system]

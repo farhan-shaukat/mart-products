@@ -63,7 +63,7 @@ const BuyerForm = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Error in submitting the form. Please check your username and password.");
+      toast.error("Error in submitting the form");
     }
   };
 

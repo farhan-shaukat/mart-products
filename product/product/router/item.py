@@ -60,11 +60,11 @@ async def create_product(
 ):
     img_url = await upload_file(file)
     product = Product(
-        name=name,
-        description=description,
-        quantity=quantity,
-        price=price,
-        imgUrl=img_url
+        name = name,
+        description = description,
+        quantity = quantity,
+        price = price,
+        imgUrl = img_url
     )
 
     session.add(product)
@@ -88,7 +88,7 @@ async def update_product(
     description: str = Form(...),
     quantity: int = Form(...),
     price: float = Form(...),
-    file: UploadFile = File(...),
+    file: UploadFile = File(None),
     session: Session = Depends(get_session),
     token: str = Depends(verify_token)
 ):
@@ -96,13 +96,14 @@ async def update_product(
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    img_url = await upload_file(file)
+    if file:
+        img_url = await upload_file(file)
+        product.imgUrl = img_url
 
     product.name = name
     product.description = description
     product.quantity = quantity
     product.price = price
-    product.imgUrl = img_url
 
     session.add(product)
     session.commit()
@@ -110,6 +111,22 @@ async def update_product(
 
     return product
 
+@router.put("/products_update_quantity/{id}",response_model= Product,tags = ['Products'])
+async def update_product_quantity(
+    id: int,
+    quantity: int = Form(...),
+    session: Session = Depends(get_session),
+    token : Session = Depends(verify_token)
+):
+    product = session.get(Product, id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    product.quantity = quantity
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+
+    return product
 
 @router.delete("/products_delete/{id}", response_model=dict, tags=['Products'])
 async def delete_product(

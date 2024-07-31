@@ -1,4 +1,6 @@
+'use client'
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const CartDetail = ({
   isOpen,
@@ -9,6 +11,7 @@ const CartDetail = ({
   handleDelete,
   setCart,
 }) => {
+  const router = useRouter()
   const [cartItems, setCartItems] = useState(carts || []);
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
 
@@ -26,31 +29,6 @@ const CartDetail = ({
     }
   }, [cartItems, closeModal]);
 
-  // useEffect(() => {
-  //   const checkCartExpiration = () => {
-  //     const savedExpireTime = localStorage.getItem("cart_expire_time");
-  //     const currentTime = new Date().getTime();
-  //     console.log("Current Time\t",currentTime)
-  //     console.log("Expire Time\t",savedExpireTime)
-  //     if ( currentTime > savedExpireTime) {
-  //       clearCart();
-  //     }
-  //   };
-
-  //   const setCartExpiration = () => {
-  //     const expireTime = new Date().getTime() + (2 * 60 * 1000);
-  //     localStorage.setItem("cart_expire_time", expireTime);
-  //   };
-  //   setCartExpiration();
-  //   const interval = setInterval(checkCartExpiration(),1000)
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  // const clearCart = () => {
-  //   setCartItems([]);
-  //   setCart([]);
-  //   localStorage.removeItem("cart_expire_time");
-  // };
 
   const totalBill = () => {
     return cartItems.reduce(
@@ -63,47 +41,48 @@ const CartDetail = ({
     // Find the product and its current quantity
     const product = products.find((p) => p.id === id);
     if (!product) return; // Exit if product is not found
-
+  
     // Get the product's available quantity
     const productQuantity = product.quantity;
-
+  
     // Update the cart items
     const updatedCart = cartItems
       .map((item) => {
         if (item.id === id) {
           const newQuantity = item.quantity + change;
           // Ensure new quantity is within valid range
-          if (
-            newQuantity >= productQuantity ||
-            newQuantity <= productQuantity
-          ) {
+          if (newQuantity >= productQuantity ||
+            newQuantity <= productQuantity) {
             return { ...item, quantity: newQuantity };
+          } else if (newQuantity <= 0) {
+            return null; // Remove item if quantity is zero or negative
           }
         }
         return item;
       })
       .filter((item) => item.quantity > 0);
-
+  
     // Update the product quantities
     const updatedProducts = products.map((p) => {
       if (p.id === id && p.quantity >= 0) {
         const newProductQuantity = p.quantity - change;
-
         if (productQuantity <= productQuantity) {
           return { ...p, quantity: newProductQuantity };
         }
       }
       return p;
     });
-
+  
+    // Update localStorage with the updated cart
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
     // Update the state or context with new cart and products
-    setCartItems(updatedCart);
     setCart(updatedCart);
-
     setProducts(updatedProducts);
+  
 
   };
-
+  
   return isModalOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 max-w-4xl mx-auto rounded-lg">
@@ -155,18 +134,28 @@ const CartDetail = ({
         ) : (
           <p className="text-center text-gray-600 mt-4">No items in the cart.</p>
         )}
-        <div className="mt-6 font-bold text-xl flex justify-between items-center">
+        <div className="mt-6 font-bold text-xl flex justify-between items-center m-4 space-x-5">
           <button
             className="py-2 px-2 rounded-lg font-semibold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
             onClick={closeModal}
           >
             Add More Items
           </button>
+  
+          <button
+            className="py-2 px-2 rounded-lg font-semibold text-white bg-teal-500 hover:text-black hover:bg-teal-400 hover:shadow-inner"
+            onClick={()=>{
+              router.push("/UserRegister")
+            }}
+          >
+            Check Out
+          </button>
+  
           <span>Total Bill: {totalBill()} Rs</span>
         </div>
       </div>
     </div>
   ) : null;
-};
-
+  };
+  
 export default CartDetail;

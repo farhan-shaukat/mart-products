@@ -7,3 +7,4 @@ class Product(SQLModel, table=True):
     quantity: int
     price: float
     imgUrl: str = Field(sa_column_kwargs={"max_length": 300})
+
