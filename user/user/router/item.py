@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, status
-from sqlmodel import Session, select ,or_
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from sqlmodel import Session, select, or_
 from user.model import UserRegister
 from user.database import get_session
 from typing import List
@@ -34,7 +34,7 @@ async def upload_file(file: UploadFile) -> str:
     public_url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
     return public_url
 
-@router.post("/user_register/")
+@router.post("/user_register/", response_model=UserRegister, tags=["User"])
 async def user_register(
     name: str = Form(...),
     email: str = Form(...),
@@ -42,7 +42,7 @@ async def user_register(
     Gender: str = Form(...),
     Address: str = Form(...),
     PhoneNumber: str = Form(...),
-    file: UploadFile = File(None),
+    file: UploadFile = File(...),
     session: Session = Depends(get_session)
 ):
     existing_user = session.exec(select(UserRegister).where(
@@ -56,23 +56,29 @@ async def user_register(
         image_url = await upload_file(file)
 
     new_user = UserRegister(
-        name = name,
-        email = email,
-        password = password,
-        Gender = Gender,
-        Address = Address,
-        PhoneNumber = PhoneNumber,
-        imgUrl = image_url
+        name=name,
+        email=email,
+        password=password,
+        Gender=Gender,
+        Address=Address,
+        PhoneNumber=PhoneNumber,
+        imgUrl=image_url
     )
 
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
-    return  new_user
+    return new_user
 
-@router.get("/get_user/", response_model=UserRegister, tags=['User'])
+@router.get("/get_latest/", response_model = UserRegister, tags = ['User'])
 async def read_latest_user(session: Session = Depends(get_session)):
     statement = select(UserRegister).order_by(UserRegister.id.desc()).limit(1)
     latest_user = session.exec(statement).first()
     return latest_user
 
+
+@router.get("/get_user/", response_model = List[UserRegister], tags = ['User'])
+async def read_user(session: Session = Depends(get_session)):
+    statement = select(UserRegister)
+    user = session.exec(statement).all()
+    return user

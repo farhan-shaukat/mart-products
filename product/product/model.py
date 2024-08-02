@@ -1,10 +1,17 @@
 from sqlmodel import Field, SQLModel
 
-class Product(SQLModel, table=True):
-    id: int| None = Field(default=None, primary_key=True)
-    name: str = Field(sa_column_kwargs={"max_length": 200})
-    description: str = Field(sa_column_kwargs={"max_length": 1200})
+
+class Category(SQLModel, table=True):
+    id: int = Field(default = None, primary_key = True)
+    name: str = Field(max_length=200)
+    imgUrl : str = Field(max_length=200)
+
+class Product(SQLModel, table = True):
+    id: int = Field(default = None, primary_key = True)
+    name: str = Field(max_length=200)
+    description: str = Field(max_length=200)
+    category : str = Field(max_length=200)
     quantity: int
     price: float
-    imgUrl: str = Field(sa_column_kwargs={"max_length": 300})
+    imgUrl: str = Field(max_length=200)
 

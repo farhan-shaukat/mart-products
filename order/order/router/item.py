@@ -13,7 +13,7 @@ async def verify_user() -> int:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User Not Registered")
         
         response_data = response.json()
-        user_id = response_data.get("id")
+        user_id =  response_data['id']
         
         if user_id is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User ID not found in response")
@@ -24,7 +24,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://127.0.0.1:8001/user_token"
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
+        response = await client.get("http://127.0.0.1:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
@@ -83,8 +83,11 @@ async def Order_create(
     return {"orders": order_list, "total_price": total_price}
 
 @router.get("/get_order", response_model = OrderCreateResponse, tags=["Order"])
-async def get_order(userId: int = Depends(verify_user),token : Session = Depends(verify_token), session: Session = Depends(get_session)):
-    orders = session.exec(select(OrderRegister).where(OrderRegister.userId == userId)).all()
+async def get_order(
+    # userId: int = Depends(verify_user), 
+    session: Session = Depends(get_session)):
+    # orders = session.exec(select(OrderRegister).where(OrderRegister.userId == userId)).all()
+    orders = session.exec(select(OrderRegister))
 
     if not orders:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No orders found for the user")

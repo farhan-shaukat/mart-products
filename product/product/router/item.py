@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, status
 from sqlmodel import Session, select
-from product.model import Product
+from product.model import Category,Product
 from product.database import get_session
 from typing import List
 from fastapi.security import OAuth2PasswordBearer
@@ -9,6 +9,7 @@ from supabase import create_client
 import os
 from dotenv import load_dotenv
 import uuid
+
 
 load_dotenv()
 
@@ -22,7 +23,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8001/token")
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
+        response = await client.get("http://127.0.0.1:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
@@ -47,34 +48,96 @@ async def upload_file(file: UploadFile) -> str:
     url = supabase.storage.from_(bucket_name).get_public_url(unique_filename)
     return url
 
+@router.get("/get_category", response_model = List[Category], tags = ['Categories'])
+async def get_category(
+    session: Session = Depends(get_session)
+    ):
+        categories = session.exec(select(Category)).all()
+        return categories
 
-@router.post("/products_create/", response_model=Product, tags=['Products'])
+import logging
+
+@router.post("/category", response_model=Category, tags=["Categories"])
+async def create_category(
+    name: str = Form(...),
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session),
+    token: Session = Depends(verify_token)
+):
+    img_url = await upload_file(file)
+    category = Category(
+        name=name,
+        imgUrl=img_url              
+    )
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
+
+@router.put("/category_update/{id}" , response_model = Category, tags = ["Categories"])
+async def update_category(
+    id : int ,
+    name : str = Form(...),
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session),
+    token : Session = Depends(verify_token)
+):
+    category = session.get(Category,id)
+    if not category:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND ,detail = "Categories Not Found")
+    img_url = await upload_file(file)
+    category.name = name
+    category.imgUrl = img_url
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+
+    return category
+
+@router.delete("/delete_category/{id}", response_model = dict, tags = ['Categories'])
+async def delete_category(
+    id : int,
+    session : Session = Depends(get_session),
+    token : Session = Depends(verify_token)
+):
+    category = session.get(Category,id)
+    if not category:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = f"{category} Not Found in List")
+    session.delete(category)
+    session.commit()
+    return {"message" : "Category Deleted Successfully","category" : category}
+
+@router.post("/products_create/", response_model = Product, tags = ['Products'])
 async def create_product(
     name: str = Form(...),
     description: str = Form(...),
     quantity: int = Form(...),
     price: float = Form(...),
+    categoryName: str = Form(...),  
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
     token: str = Depends(verify_token)
 ):
+    category = session.exec(select(Category).where(Category.name == categoryName)).first()
+    if not category:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{categoryName} not found in Categories")
+
     img_url = await upload_file(file)
     product = Product(
-        name = name,
+        name =name,
         description = description,
         quantity = quantity,
         price = price,
+        category = category.name,
         imgUrl = img_url
     )
-
     session.add(product)
     session.commit()
     session.refresh(product)
-
     return product
 
 
-@router.get("/products/", response_model=List[Product], tags=['Products'])
+@router.get("/products/", response_model = List[Product], tags = ['Products'])
 async def read_products(session: Session = Depends(get_session)):
     statement = select(Product)
     products = session.exec(statement).all()
@@ -88,13 +151,17 @@ async def update_product(
     description: str = Form(...),
     quantity: int = Form(...),
     price: float = Form(...),
-    file: UploadFile = File(None),
+    categoryName : str = Form(...),
+    file: UploadFile = File(...),
     session: Session = Depends(get_session),
     token: str = Depends(verify_token)
 ):
     product = session.get(Product, id)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code= 404, detail= "Product not found")
+    category = session.exec(select(Category).where(Category.name == categoryName)).first()
+    if not category:
+        raise HTTPException(status_code =  status.HTTP_404_NOT_FOUND , detail = f"{categoryName} not found in Categories")
 
     if file:
         img_url = await upload_file(file)
@@ -104,6 +171,7 @@ async def update_product(
     product.description = description
     product.quantity = quantity
     product.price = price
+    product.category = category.name
 
     session.add(product)
     session.commit()
@@ -111,22 +179,22 @@ async def update_product(
 
     return product
 
-@router.put("/products_update_quantity/{id}",response_model= Product,tags = ['Products'])
-async def update_product_quantity(
-    id: int,
-    quantity: int = Form(...),
-    session: Session = Depends(get_session),
-    token : Session = Depends(verify_token)
-):
-    product = session.get(Product, id)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    product.quantity = quantity
-    session.add(product)
-    session.commit()
-    session.refresh(product)
+# @router.put("/products_update_quantity/{id}",response_model= Product,tags = ['Products'])
+# async def update_product_quantity(
+#     id: int,
+#     quantity: int = Form(...),
+#     session: Session = Depends(get_session),
+#     token : Session = Depends(verify_token)
+# ):
+#     product = session.get(Product, id)
+#     if not product:
+#         raise HTTPException(status_code=404, detail="Product not found")
+#     product.quantity = quantity
+#     session.add(product)
+#     session.commit()
+#     session.refresh(product)
 
-    return product
+#     return product
 
 @router.delete("/products_delete/{id}", response_model=dict, tags=['Products'])
 async def delete_product(
