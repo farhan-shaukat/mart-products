@@ -179,22 +179,22 @@ async def update_product(
 
     return product
 
-# @router.put("/products_update_quantity/{id}",response_model= Product,tags = ['Products'])
-# async def update_product_quantity(
-#     id: int,
-#     quantity: int = Form(...),
-#     session: Session = Depends(get_session),
-#     token : Session = Depends(verify_token)
-# ):
-#     product = session.get(Product, id)
-#     if not product:
-#         raise HTTPException(status_code=404, detail="Product not found")
-#     product.quantity = quantity
-#     session.add(product)
-#     session.commit()
-#     session.refresh(product)
+@router.put("/products_update_quantity/{id}",response_model= Product,tags = ['Products'])
+async def update_product_quantity(
+    id: int,
+    quantity: int = Form(...),
+    session: Session = Depends(get_session),
+    token : Session = Depends(verify_token)
+):
+    product = session.get(Product, id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    product.quantity = quantity
+    session.add(product)
+    session.commit()
+    session.refresh(product)
 
-#     return product
+    return product
 
 @router.delete("/products_delete/{id}", response_model=dict, tags=['Products'])
 async def delete_product(

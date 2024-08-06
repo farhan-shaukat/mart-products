@@ -36,9 +36,10 @@ const Page = () => {
 
   // Define the submit handler
   const onSubmit = async (values) => {
+
     try {
       // Make the POST request to your API
-      const response = await axios.post("http://127.0.0.1:8001/user_token", values, {
+      const response = await axios.post("http://127.0.0.1:8001/token", values, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -47,12 +48,6 @@ const Page = () => {
         const { access_token } = response.data;
         localStorage.setItem("token", access_token); 
         toast.success("Login successful.");
-        // Fetch the latest user data
-        const latestUserResponse = await axios.get(`http://127.0.0.1:8002/get_latest_name/`, {
-          params: { username: values.username },
-        });
-        const user_id = latestUserResponse.data.id
-        localStorage.setItem("id",user_id)
         router.push("/dashboard");
       } else if (response.status === 400) {
         toast.error(

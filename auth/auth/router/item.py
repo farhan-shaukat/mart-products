@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form,Query
 from sqlmodel import Session, select
 from auth.model import User
 from auth.database import get_session
 from auth.auth_security import create_access_token, SECRET_KEY, ALGORITHM
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
+from typing import Annotated,Dict
 from jose import jwt, JWTError
 import httpx
 
@@ -21,22 +21,21 @@ def get_password_hash(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-async def verify_user() -> int:
+async def verify_user(username: str) -> Dict[str, str]:
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8002/get_user/")
+        response = await client.get(f"http://127.0.0.1:8002/get_latest_name/", params={"username": username})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User Not Registered")
         
         response_data = response.json()
         user_name = response_data.get("name")
         password = response_data.get("password")
-        
+
         if user_name is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User ID not found in response")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found in response")
         
         return {"username": user_name, "password": password}
-
-
+    
 @router.post("/register", response_model=User)
 async def register_user(
     username: str = Form(...),
@@ -62,7 +61,6 @@ async def register_user(
 @router.post("/token")
 async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
     db_user = db.query(User).filter(User.username == user.username).first()
-    print(db_user)
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,8 +71,9 @@ async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Sessi
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/user_token")
-async def userLogin(user : Annotated[OAuth2PasswordRequestForm,Depends()], db:Session = Depends(verify_user) ):
-    user_data = await verify_user()
+async def userLogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
+    user_data = await verify_user(user.username)  # Await the coroutine
+    
     if user.username != user_data['username'] or user.password != user_data['password']:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -84,7 +83,7 @@ async def userLogin(user : Annotated[OAuth2PasswordRequestForm,Depends()], db:Se
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-    
+
 
 @router.get("/verify_token")
 async def verify_token_api(token: str = Depends(oauth2_scheme)):

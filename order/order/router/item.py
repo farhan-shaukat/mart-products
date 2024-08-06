@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 async def verify_user() -> int:
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8002/get_user/")
+        response = await client.get("http://127.0.0.1:8002/get_latest/")
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User Not Registered")
         

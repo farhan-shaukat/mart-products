@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const Sidebar = ({
   isOpen,
@@ -9,6 +9,16 @@ const Sidebar = ({
   showUsers,
   showOrders,
 }) => {
+  const [token, setToken] = useState(null);
+  const [id, setId] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const id = localStorage.getItem("id");
+    setToken(token);
+    setId(id);
+  }, []);
+
   return (
     <aside
       className={`fixed left-0 top-0 w-64 h-full bg-gray-800 text-white transform ${
@@ -39,38 +49,63 @@ const Sidebar = ({
       </div>
       <nav className="mt-4">
         <ul className="space-y-2">
-          <li>
-            <button
-              className="block py-2 px-4 hover:bg-gray-700"
-              onClick={onShowProducts}
-            >
-              Products
-            </button>
-          </li>
-          <li>
-            <button
-              className="block py-2 px-4 hover:bg-gray-700"
-              onClick={showUsers}
-            >
-              Profiles
-            </button>
-          </li>
-          <li>
-            <button
-              className="block py-2 px-4 hover:bg-gray-700"
-              onClick={showOrders}
-            >
-              Orders
-            </button>
-          </li>
-          <li>
-            <button
-              className="block py-2 px-4 hover:bg-gray-700"
-              onClick={showCategories}
-            >
-              Categories
-            </button>
-          </li>
+          {!id && token && (
+            <>
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={onShowProducts}
+                >
+                  Products
+                </button>
+              </li>
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={showCategories}
+                >
+                  Categories
+                </button>
+              </li>
+
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={showUsers}
+                >
+                  Profiles
+                </button>
+              </li>
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={showOrders}
+                >
+                  Orders
+                </button>
+              </li>
+            </>
+          )}
+          {id && token && (
+            <>
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={showUsers}
+                >
+                  Profiles
+                </button>
+              </li>
+              <li>
+                <button
+                  className="block py-2 px-4 hover:bg-gray-700"
+                  onClick={showOrders}
+                >
+                  Orders
+                </button>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
     </aside>

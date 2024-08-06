@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form,Query,status
 from sqlmodel import Session, select, or_
 from user.model import UserRegister
 from user.database import get_session
@@ -74,6 +74,46 @@ async def user_register(
 async def read_latest_user(session: Session = Depends(get_session)):
     statement = select(UserRegister).order_by(UserRegister.id.desc()).limit(1)
     latest_user = session.exec(statement).first()
+    return latest_user
+
+@router.put("/user_update/{id}",response_model = UserRegister, tags = ['User'])
+async def user_update(
+    id: int ,
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    Gender: str = Form(...),
+    Address: str = Form(...),
+    PhoneNumber: str = Form(...),
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session)
+):
+    existing_user = session.exec(select(UserRegister).where(UserRegister.id == id)).first()
+    if not existing_user:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = "User Not Found")
+    if file:
+        image_url = await upload_file(file)
+
+    existing_user.imgUrl = image_url
+    existing_user.name = name
+    existing_user.email = email
+    existing_user.password = password
+    existing_user.Gender = Gender
+    existing_user.Address = Address
+    existing_user.PhoneNumber = PhoneNumber
+
+    session.add(existing_user)
+    session.commit()
+    session.refresh(existing_user)
+
+    return existing_user
+
+@router.get("/get_latest_name/", response_model=UserRegister, tags=['User'])
+async def read_latest_name(username: str = Query(...), session: Session = Depends(get_session)):
+    statement = select(UserRegister).where(UserRegister.name == username)
+    latest_user = session.exec(statement).first()
+    if not latest_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{username} not Found")
     return latest_user
 
 

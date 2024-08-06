@@ -4,24 +4,43 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import CartDetail from "./CartDetail";
 
-const NavBar = () => {
+const NavBar = ({
+  quantity,
+  carts,
+  products,
+  setProducts,
+  handleDelete,
+  setCart,
+}) => {
   const [token, setToken] = useState(null);
+  const [id, setId] = useState(null);
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Retrieve token from localStorage on component mount
     const storedToken = localStorage.getItem("token");
     setToken(storedToken);
+    const storedId = localStorage.getItem("id");
+    setId(storedId);
   }, []);
 
   const handleLogout = () => {
-    // Remove token from localStorage and update state
     localStorage.removeItem("token");
+    localStorage.removeItem("id");
+    setId(null);
     setToken(null);
     router.push("/");
+  };
+
+  const openModalCart = () => {
+    setIsOpen(true);
+  };
+
+  const closeModalCart = () => {
+    setIsOpen(false);
   };
 
   return (
@@ -32,48 +51,79 @@ const NavBar = () => {
             <Image src="/img/logo.jpeg" alt="Logo" width={56} height={56} />
           </div>
 
-          <Button variant="outline" onClick={handleLogout}>
-            <Link href="/">Home</Link>
-          </Button>
+          <Link
+            href="/"
+            className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition"
+          >
+            Home
+          </Link>
           <div className="flex flex-grow items-center">
             <input
               type="text"
               placeholder="Search"
               className="p-2 rounded bg-white text-black w-full"
             />
-            <Button variant="outline" className="m-3">
-              {" "}
-              Search{" "}
-            </Button>
+            <button className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition ml-3 mr-5">
+              Search
+            </button>
           </div>
         </div>
         <div className="flex items-center space-x-5">
           {token ? (
-            <Button variant="outline" onClick={handleLogout}>
+            <button
+              className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition"
+              onClick={handleLogout}
+            >
               Logout
-            </Button>
+            </button>
           ) : (
             <>
-              <Button variant="outline">
-                <Link href="/login">Login</Link>
-              </Button>
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition"
+              >
+                Login
+              </Link>
 
-              <Button variant="outline">
-                <Link href={"/register"} >Register</Link>
-              </Button>
+              <Link
+                href="/adminlogin"
+                className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition"
+              >
+                Admin Login
+              </Link>
+
+              <Link
+                href="/register"
+                className="px-4 py-2 bg-transparent text-white border border-white rounded hover:bg-white hover:text-slate-600 transition"
+              >
+                Register
+              </Link>
             </>
           )}
-          <div className="flex items-center">
+          <div className="relative flex items-center cursor-pointer" onClick={openModalCart} >
             <FontAwesomeIcon
               icon={faCartShopping}
-              className="text-xl text-white"
+              className="text-2xl text-white"
             />
-            <span className="ml-2 text-md cursor-pointer text-white m-3">
-              Shopping Cart
-            </span>
+            {
+              <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full px-2 py-1 text-xs">
+                {quantity}
+              </span>
+            }
           </div>
         </div>
       </nav>
+      {!token && (
+          <CartDetail
+            isOpen={isOpen}
+            closeModal={closeModalCart}
+            carts={carts}
+            products={products}
+            setProducts={setProducts}
+            handleDelete={handleDelete}
+            setCart={setCart}
+          />
+        )}
     </div>
   );
 };
