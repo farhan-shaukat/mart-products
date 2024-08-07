@@ -189,12 +189,11 @@ const Page = () => {
 
       const response = await axios.post("http://127.0.0.1:8002/user_register/", formData);
       if (response.status === 200) {
-        toast.success("Registration successful!");
+        await toast.success("Registration successful!");
+        
         if (order.length > 0) {
           await placeOrder();
-        } else {
-          toast.success("Sir Place Your Order");
-        }
+        } 
         router.push("/");
       } else if (response.status === 400) {
         toast.error("Invalid credentials. User already exists. Please check your username and password.");

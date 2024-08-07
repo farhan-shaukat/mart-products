@@ -201,10 +201,17 @@ const Page = () => {
         if (order.length > 0) {
           await placeOrder(values);
         }
-        const user_id = latestUserResponse.data.id;
-        localStorage.setItem("id", user_id);
+        if(latestUserResponse.data.role === "Admin")
+        {
+          localStorage.setItem("role",latestUserResponse.data.role)
+          toast.success("Login successful.");
+          router.push("/dashboard");
+        }
+        else{
+        localStorage.setItem("id", latestUserResponse.data.id);
         toast.success("Login successful.");
         router.push("/dashboard");
+        }
       } else if (response.status === 400) {
         toast.error(
           "Invalid credentials. Please check your username and password."

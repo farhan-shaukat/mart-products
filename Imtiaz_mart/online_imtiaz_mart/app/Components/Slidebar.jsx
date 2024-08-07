@@ -11,12 +11,16 @@ const Sidebar = ({
 }) => {
   const [token, setToken] = useState(null);
   const [id, setId] = useState(null);
+  const [role,setRole] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("id");
+    const role = localStorage.getItem("role");
     setToken(token);
     setId(id);
+    setRole(role)
+
   }, []);
 
   return (
@@ -49,7 +53,7 @@ const Sidebar = ({
       </div>
       <nav className="mt-4">
         <ul className="space-y-2">
-          {!id && token && (
+          {!id && token && role && (
             <>
               <li>
                 <button

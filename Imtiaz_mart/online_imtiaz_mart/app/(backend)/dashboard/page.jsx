@@ -7,8 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "@/app/Components/Slidebar";
 import { Button } from "@/components/ui/button";
 import { any, z } from "zod";
-import { useRouter } from "next/navigation";
 import NavBar from "@/app/Components/Navbar";
+
+
 const Page = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
@@ -32,7 +33,6 @@ const Page = () => {
   const [userGender, setUserGender] = useState("");
   const [userImg, setUserImg] = useState(null);
   const [updateUser, setUpdateUser] = useState(null);
-  const router = useRouter()
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -196,7 +196,7 @@ const Page = () => {
           toast.success("User updated successfully!");
           // Assuming router is defined somewhere
           setUpdateUser(null)
-          router.refresh();
+          window.location.reload();
         } else if (response.status === 400) {
           toast.error("Invalid data. Please check your input.");
         } else if (response.status === 401) {
@@ -207,7 +207,7 @@ const Page = () => {
       } catch (error) {
         if (error instanceof z.ZodError) {
           // Handle validation errors
-          toast.error("Validation failed. Please check the form fields.");
+          toast.error("Upload the Image");
           console.log(error.errors);
         } else if (error.response) {
           // Handle API errors

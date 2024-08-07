@@ -30,6 +30,7 @@ const NavBar = ({
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("id");
+    localStorage.removeItem("role")
     setId(null);
     setToken(null);
     router.push("/");
