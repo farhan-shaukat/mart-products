@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "@/app/Components/Slidebar";
 import { Button } from "@/components/ui/button";
 import { any, z } from "zod";
+import { useRouter } from "next/navigation";
 import NavBar from "@/app/Components/Navbar";
 const Page = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -26,12 +27,12 @@ const Page = () => {
   const [id, setId] = useState(null);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
   const [userPhoneNumber, setUserPhoneNumber] = useState("");
   const [userAddress, setUserAddress] = useState("");
   const [userGender, setUserGender] = useState("");
   const [userImg, setUserImg] = useState(null);
   const [updateUser, setUpdateUser] = useState(null);
+  const router = useRouter()
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -141,15 +142,9 @@ const Page = () => {
     setFormVisible(true);
   };
 
-  const UserUpdate = async (e) => {
-    e.preventDefault();
-
     const formSchema = z.object({
       name: z.string().min(1, { message: "Name is required." }),
       email: z.string().email({ message: "Invalid email address." }),
-      password: z
-        .string()
-        .min(8, { message: "Password must be at least 8 characters." }),
       phoneNumber: z
         .string()
         .min(10, { message: "Phone number must be at least 10 digits." }),
@@ -157,78 +152,79 @@ const Page = () => {
       gender: z.enum(["Male", "Female", "Other"], {
         message: "Select a valid gender.",
       }),
-      img: z
-        .instanceof(FileList)
-        .refine((files) => files.length === 0 || files.length === 1, {
-          message: "Please upload an image or leave it unchanged.",
-        }),
+      file: z.instanceof(File).optional(),
     });
 
-    try {
-      // Validate the form data
-      formSchema.parse({
-        name: userName,
-        email: userEmail,
-        password: userPassword,
-        phoneNumber: userPhoneNumber,
-        address: userAddress,
-        gender: userGender,
-        img: userImg ? new FileList([userImg]) : new FileList([]),
-      });
-
+    const handleFileChange = (e) => {
+      if (e.target.files && e.target.files[0]) {
+        setUserImg(e.target.files[0]);
+      }
+    };
+  
+    const UserUpdateForm = async (e) => {
+      e.preventDefault();
+  
       // Prepare form data
       const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
-      formData.append("password", userPassword);
-      formData.append("phoneNumber", userPhoneNumber);
-      formData.append("address", userAddress);
-      formData.append("gender", userGender);
+      formData.append("PhoneNumber", userPhoneNumber);
+      formData.append("Address", userAddress);
+      formData.append("Gender", userGender);
       if (userImg) {
         formData.append("file", userImg);
       }
-
-      // Make the API request
-      const response = await axios.post(
-        `http://127.0.0.1:8002/user_update/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // Handle the response
-      if (response.status === 200) {
-        toast.success("User updated successfully!");
-        router.push("/");
-      } else if (response.status === 400) {
-        toast.error("Invalid data. Please check your input.");
-      } else if (response.status === 401) {
-        toast.error("Unauthorized access. Please check your credentials.");
-      } else {
-        toast.error("Unexpected error occurred.");
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Handle validation errors
-        toast.error("Validation failed. Please check the form fields.");
-        console.log(error.errors);
-      } else if (error.response) {
-        // Handle API errors
-        if (error.response.status === 422) {
-          toast.error("Validation failed. Please check the form fields.");
+  
+      try {
+        // Validate form fields
+        formSchema.parse({
+          name: userName,
+          email: userEmail,
+          phoneNumber: userPhoneNumber,
+          address: userAddress,
+          gender: userGender,
+          file: userImg
+        });
+        // Make the API request
+        const response = await axios.put(
+          `http://127.0.0.1:8002/user_update/${updateUser.id}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+  
+        if (response.status === 200) {
+          toast.success("User updated successfully!");
+          // Assuming router is defined somewhere
+          setUpdateUser(null)
+          router.refresh();
+        } else if (response.status === 400) {
+          toast.error("Invalid data. Please check your input.");
+        } else if (response.status === 401) {
+          toast.error("Unauthorized access. Please check your credentials.");
         } else {
-          toast.error("Error occurred during update.");
+          toast.error("Unexpected error occurred.");
         }
-      } else {
-        // Handle other errors
-        toast.error("Update failed. Please try again.");
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          // Handle validation errors
+          toast.error("Validation failed. Please check the form fields.");
+          console.log(error.errors);
+        } else if (error.response) {
+          // Handle API errors
+          if (error.response.status === 422) {
+            toast.error("Validation failed. Please check the form fields.");
+          } else {
+            toast.error("Error occurred during update.");
+          }
+        } else {
+          // Handle other errors
+          toast.error("Update failed. Please try again.");
+        }
+        console.log(error);
       }
-      console.log(error);
-    }
-  };
+    };
+  
+  
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -244,7 +240,7 @@ const Page = () => {
 
       const formData = new FormData();
       formData.append("name", catName);
-      formData.append("file", img); // Updated field name to match server expectation
+      formData.append("file", img); 
 
       const data = {
         name: catName,
@@ -252,9 +248,6 @@ const Page = () => {
       };
 
       CategorySchema.parse(data);
-
-      const token = localStorage.getItem("token");
-
       const response = await axios.post(
         "http://127.0.0.1:8000/category",
         formData,
@@ -296,10 +289,9 @@ const Page = () => {
     setUpdateUser(user);
     setUserName(user.name);
     setUserEmail(user.email);
-    setUserPassword("");
-    setUserPhoneNumber(user.phoneNumber);
-    setUserAddress(user.address);
-    setUserGender(user.gender);
+    setUserPhoneNumber(user.PhoneNumber);
+    setUserAddress(user.Address);
+    setUserGender(user.Gender);
     setUserImg(null);
   };
 
@@ -322,8 +314,6 @@ const Page = () => {
       };
 
       categorySchema.parse(data);
-
-      const token = localStorage.getItem("token");
 
       const response = await axios.put(
         `http://127.0.0.1:8000/category_update/${updateCategory.id}`,
@@ -639,9 +629,9 @@ const Page = () => {
                               key={user.id}
                               className="border border-gray-300 rounded-lg shadow-lg p-4"
                             >
-                              {UserUpdate && UserUpdate.id === user.id ? (
+                              {updateUser && updateUser.id === user.id ? (
                                 <form
-                                  onSubmit={UserUpdate}
+                                  onSubmit={UserUpdateForm}
                                   className="border p-4 rounded"
                                 >
                                   <div className="mb-4">
@@ -668,20 +658,6 @@ const Page = () => {
                                       value={userEmail}
                                       onChange={(e) =>
                                         setUserEmail(e.target.value)
-                                      }
-                                      className="w-full p-2 border rounded"
-                                    />
-                                  </div>
-                                  <div className="mb-4">
-                                    <label className="block text-gray-700">
-                                      Password
-                                    </label>
-                                    <input
-                                      type="password"
-                                      name="password"
-                                      value={userPassword}
-                                      onChange={(e) =>
-                                        setUserPassword(e.target.value)
                                       }
                                       className="w-full p-2 border rounded"
                                     />
@@ -739,9 +715,7 @@ const Page = () => {
                                     <input
                                       type="file"
                                       name="img"
-                                      onChange={(e) =>
-                                        setUserImg(e.target.files[0])
-                                      }
+                                      onChange={handleFileChange}
                                       className="w-full p-2 border rounded"
                                     />
                                   </div>

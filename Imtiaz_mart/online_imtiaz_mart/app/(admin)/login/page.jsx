@@ -134,7 +134,6 @@ const Page = () => {
             );
             if (latestUserResponse.status === 200) {
               // Place order
-              console.log(latestUserResponse.data.id)
               const orderResponse = await axios.post(
                 "http://127.0.0.1:8003/Order_create/",
                 { products: order, userId: latestUserResponse.data.id},

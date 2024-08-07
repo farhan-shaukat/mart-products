@@ -81,32 +81,31 @@ async def user_update(
     id: int ,
     name: str = Form(...),
     email: str = Form(...),
-    password: str = Form(...),
     Gender: str = Form(...),
     Address: str = Form(...),
     PhoneNumber: str = Form(...),
     file: UploadFile = File(...),
     session: Session = Depends(get_session)
 ):
-    existing_user = session.exec(select(UserRegister).where(UserRegister.id == id)).first()
-    if not existing_user:
-        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = "User Not Found")
+    existing_User = session.get(UserRegister, id)
+    if not existing_User:
+        raise HTTPException(status_code= 404, detail= "User not found")
+
     if file:
-        image_url = await upload_file(file)
+        img_url = await upload_file(file)
+        existing_User.imgUrl = img_url
 
-    existing_user.imgUrl = image_url
-    existing_user.name = name
-    existing_user.email = email
-    existing_user.password = password
-    existing_user.Gender = Gender
-    existing_user.Address = Address
-    existing_user.PhoneNumber = PhoneNumber
+    existing_User.name = name
+    existing_User.email = email
+    existing_User.Gender = Gender
+    existing_User.Address = Address
+    existing_User.PhoneNumber = PhoneNumber
 
-    session.add(existing_user)
+    session.add(existing_User)
     session.commit()
-    session.refresh(existing_user)
+    session.refresh(existing_User)
 
-    return existing_user
+    return existing_User
 
 @router.get("/get_latest_name/", response_model=UserRegister, tags=['User'])
 async def read_latest_name(username: str = Query(...), session: Session = Depends(get_session)):
