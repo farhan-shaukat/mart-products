@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import OrderDetail from "@/app/Components/OrderDetail";
+import NavBar from "@/app/Components/Navbar";
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -105,14 +106,13 @@ const Page = () => {
       // Fetch user details
       const response = await axios.get("http://127.0.0.1:8002/get_latest/");
       const userDetail = response.data;
-      console.log(userDetail)
 
       const userData = new URLSearchParams();
       userData.append("username", userDetail.name);
       userData.append("password", userDetail.password);
 
       if (response.status === 200) {
-        //  User login to get the token
+        // User login to get the token
         const login = await axios.post(
           "http://127.0.0.1:8001/user_token",
           userData,
@@ -122,35 +122,39 @@ const Page = () => {
             },
           }
         );
-        console.log(login.status);
-        console.log(login);
-
         if (login.status === 200) {
           const { access_token } = login.data;
-          console.log(access_token);
           localStorage.setItem("token", access_token);
 
           try {
-            // Place order
-            console.log("Order data:", order);
-            const orderResponse = await axios.post(
-              "http://127.0.0.1:8003/Order_create/",
-              order,
+            const latestUserResponse = await axios.get(
+              `http://127.0.0.1:8002/get_latest_name/`,
               {
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${access_token}`,
-                },
+                params: { username: userDetail.name},
               }
             );
-            
-            if (orderResponse.status === 200) {
-              toast.success("Order placed successfully");
-              await ProductQuantityUpdate();
-            } else {
-              toast.error(
-                `Order failed with status code: ${orderResponse.status}`
+            if (latestUserResponse.status === 200) {
+              // Place order
+              console.log(latestUserResponse.data.id)
+              const orderResponse = await axios.post(
+                "http://127.0.0.1:8003/Order_create/",
+                { products: order, userId: latestUserResponse.data.id},
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${access_token}`,
+                  },
+                }
               );
+
+              if (orderResponse.status === 200) {
+                toast.success("Order placed successfully");
+                await ProductQuantityUpdate();
+              } else {
+                toast.error(
+                  `Order failed with status code: ${orderResponse.status}`
+                );
+              }
             }
           } catch (error) {
             console.error(
@@ -166,9 +170,9 @@ const Page = () => {
         "Error fetching user details or logging in:",
         error.response?.data || error.message
       );
-      toast.error("Error fetching user details or logging in");
     }
   };
+
   const onSubmit = async (data) => {
     try {
       if (order.length > 0) {
@@ -183,16 +187,11 @@ const Page = () => {
       formData.append("Gender", data.gender); 
       if (data.img[0]) formData.append("file", data.img[0]); 
 
-      // setUserDetail({
-      //   "username": data.email, // Assuming email is used as username
-      //   "password": data.password,
-      // });
-
       const response = await axios.post("http://127.0.0.1:8002/user_register/", formData);
       if (response.status === 200) {
         toast.success("Registration successful!");
         if (order.length > 0) {
-          await placeOrder(data);
+          await placeOrder();
         } else {
           toast.success("Sir Place Your Order");
         }
@@ -211,13 +210,12 @@ const Page = () => {
   };
 
   const GotoLogin = async () => {
-    openModal()
-    await placeOrder()
     router.push("/login");
   };
 
   return (
     <>
+    <NavBar/>
       <div className="flex items-center justify-center min-h-screen bg-gray-100 pt-10">
         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Registration</h2>

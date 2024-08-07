@@ -72,7 +72,7 @@ async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Sessi
 
 @router.post("/user_token")
 async def userLogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
-    user_data = await verify_user(user.username)  # Await the coroutine
+    user_data = await verify_user(user.username) 
     
     if user.username != user_data['username'] or user.password != user_data['password']:
         raise HTTPException(
@@ -82,7 +82,6 @@ async def userLogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: S
         )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 
 @router.get("/verify_token")

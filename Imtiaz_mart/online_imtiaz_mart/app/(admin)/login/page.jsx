@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import NavBar from "@/app/Components/Navbar";
+import OrderDetail from "@/app/Components/OrderDetail";
 
 // Define the form schema using Zod
 const formSchema = z.object({
@@ -34,25 +35,176 @@ const Page = () => {
     },
   });
 
+  const [products, setProducts] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/products/");
+        setProducts(response.data);
+      } catch (error) {
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const order = cartItems.map((item) => ({
+    productName: item.name,
+    productQuantity: item.quantity,
+    productPrice: item.price,
+  }));
+
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
+
+  useEffect(() => {
+    const cartJSON = localStorage.getItem("cart");
+    if (cartJSON) {
+      const items = JSON.parse(cartJSON);
+      setCartItems(items);
+    }
+  }, []);
+
+  const ProductQuantityUpdate = async () => {
+    try {
+      const access_token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${access_token}`,
+      };
+      for (const item of cartItems) {
+        const product = products.find((p) => p.id === item.id);
+        if (product) {
+          const updatedQuantity = product.quantity - item.quantity;
+          if (updatedQuantity < 0) {
+            toast.error(`Not enough stock for ${product.name}`);
+            return;
+          }
+          const formData = new FormData();
+          formData.append("quantity", updatedQuantity.toString());
+          await axios.put(
+            `http://127.0.0.1:8000/products_update_quantity/${item.id}`,
+            formData,
+            { headers }
+          );
+        } else {
+          toast.error(`Product with ID ${item.id} not found`);
+        }
+      }
+      toast.success("Product quantities updated successfully");
+      localStorage.removeItem("cart");
+    } catch (error) {
+      toast.error("Error updating product quantities");
+    }
+  };
+
+  const placeOrder = async (values) => {
+    try {
+      // Fetch user details
+      const response = await axios.get("http://127.0.0.1:8002/get_latest/");
+      const userDetail = response.data;
+
+      const userData = new URLSearchParams();
+      userData.append("username", userDetail.name);
+      userData.append("password", userDetail.password);
+
+      if (response.status === 200) {
+        // User login to get the token
+        const login = await axios.post(
+          "http://127.0.0.1:8001/user_token",
+          userData,
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        );
+        if (login.status === 200) {
+          const { access_token } = login.data;
+          localStorage.setItem("token", access_token);
+
+          try {
+            const latestUserResponse = await axios.get(
+              `http://127.0.0.1:8002/get_latest_name/`,
+              {
+                params: { username: values.username },
+              }
+            );
+            if (latestUserResponse.status === 200) {
+              // Place order
+              console.log(latestUserResponse.data.id)
+              const orderResponse = await axios.post(
+                "http://127.0.0.1:8003/Order_create/",
+                { products: order, userId: latestUserResponse.data.id},
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${access_token}`,
+                  },
+                }
+              );
+
+              if (orderResponse.status === 200) {
+                toast.success("Order placed successfully");
+                await ProductQuantityUpdate();
+              } else {
+                toast.error(
+                  `Order failed with status code: ${orderResponse.status}`
+                );
+              }
+            }
+          } catch (error) {
+            console.error(
+              "Error placing order:",
+              error.response?.data || error.message
+            );
+            toast.error("Error placing order");
+          }
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching user details or logging in:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
   // Define the submit handler
   const onSubmit = async (values) => {
     try {
+      if (order.length > 0) {
+        openModal();
+      }
       // Make the POST request to your API
-      const response = await axios.post("http://127.0.0.1:8001/user_token", values, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8001/user_token",
+        values,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
       if (response.status === 200) {
         const { access_token } = response.data;
-        localStorage.setItem("token", access_token); 
-        toast.success("Login successful.");
+        localStorage.setItem("token", access_token);
         // Fetch the latest user data
-        const latestUserResponse = await axios.get(`http://127.0.0.1:8002/get_latest_name/`, {
-          params: { username: values.username },
-        });
-        const user_id = latestUserResponse.data.id
-        localStorage.setItem("id",user_id)
+        const latestUserResponse = await axios.get(
+          `http://127.0.0.1:8002/get_latest_name/`,
+          {
+            params: { username: values.username },
+          }
+        );
+
+        if (order.length > 0) {
+          await placeOrder(values);
+        }
+        const user_id = latestUserResponse.data.id;
+        localStorage.setItem("id", user_id);
+        toast.success("Login successful.");
         router.push("/dashboard");
       } else if (response.status === 400) {
         toast.error(
@@ -65,67 +217,67 @@ const Page = () => {
       }
     } catch (error) {
       // Handle error response
-      console.error("Error submitting the form", error);
       toast.error("Error submitting the form. Please try again.");
     }
   };
 
   return (
     <>
-    <NavBar/>
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
-          Login
-        </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
+      <NavBar />
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+          <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
+            Login
+          </h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                {...register("username")}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+              />
+              {errors.username && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.username.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                {...register("password")}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+              />
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Username
-            </label>
-            <input
-              id="username"
-              {...register("username")}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-            />
-            {errors.username && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.username.message}
-              </p>
-            )}
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password")}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-            />
-            {errors.password && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-           Login
-          </button>
-        </form>
-        <ToastContainer />
+              Login
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+      <ToastContainer />
+      {isOpen && <OrderDetail isOpen={isOpen} closeModal={closeModal} prod={products}/>}
     </>
   );
 };
