@@ -1,12 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 
 const OrderDetail = ({ isOpen, closeModal, prod}) => {
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
-  const router = useRouter()
 
   useEffect(() => {
     setIsModalOpen(isOpen);

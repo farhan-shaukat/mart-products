@@ -56,13 +56,13 @@ async def user_register(
         image_url = await upload_file(file)
 
     new_user = UserRegister(
-        name=name,
-        email=email,
-        password=password,
-        Gender=Gender,
-        Address=Address,
-        PhoneNumber=PhoneNumber,
-        imgUrl=image_url
+        name = name,
+        email = email,
+        password = password,
+        Gender = Gender,
+        Address = Address,
+        PhoneNumber = PhoneNumber,
+        imgUrl = image_url
     )
 
     session.add(new_user)

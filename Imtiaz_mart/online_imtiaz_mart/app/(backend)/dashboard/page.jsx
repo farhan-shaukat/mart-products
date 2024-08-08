@@ -794,15 +794,18 @@ const Page = () => {
                               className="mx-auto rounded-full h-24 w-24 mb-4"
                             />
                             <div className="text-center">
+                            <p className="text-xl font-bold mb-2">
+                               User id : {user.id}
+                              </p>
                               <p className="text-xl font-bold mb-2">
-                                {user.name}
+                                User Name : {user.name}
                               </p>
-                              <p className="text-gray-600">{user.email}</p>
+                              <p className="text-gray-600">User Email :{user.email}</p>
                               <p className="text-gray-600">
-                                {user.PhoneNumber}
+                                User PhoneNumber : {user.PhoneNumber}
                               </p>
-                              <p className="text-gray-600">{user.Gender}</p>
-                              <p className="text-gray-600">{user.Address}</p>
+                              <p className="text-gray-600">User Gender: {user.Gender}</p>
+                              <p className="text-gray-600">User Address: {user.Address}</p>
                             </div>
                           </div>
                         ))

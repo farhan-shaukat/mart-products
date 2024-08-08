@@ -48,11 +48,11 @@ async def Order_create(
         order_total_price = productQuantity * productPrice
 
         new_order = OrderRegister(
-            userId=userId,
-            productName=productName,
-            productQuantity=productQuantity,
-            productPrice=productPrice,
-            totalPrice=order_total_price
+            userId = userId,
+            productName = productName,
+            productQuantity = productQuantity,
+            productPrice = productPrice,
+            totalPrice = order_total_price
         )
 
         session.add(new_order)

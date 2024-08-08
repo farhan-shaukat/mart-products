@@ -1,41 +1,66 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import UpdateProduct from '@/app/(product_detail)/updateProduct/page';
-import NavBar from '@/app/Components/Navbar';
-
+"use client";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import UpdateProduct from "@/app/(product_detail)/updateProduct/page";
+import NavBar from "@/app/Components/Navbar";
+import { useRouter } from "next/navigation";
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
-
-  const fetchProduct = async () => {
-    try {
-      const response = await axios.get('http://127.0.0.1:8000/products/');
-      if (response.status === 200) {
-        setProducts(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error('Error fetching products');
-    }
-  };
+  const [category, setCategory] = useState([]);
+  const [searchProd, setSearchProd] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/products/");
+        if (response.status === 200) {
+          setProducts(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Error fetching products");
+      }
+    };
+
     fetchProduct();
-    const storedToken = localStorage.getItem('token');
+
+    const storedToken = localStorage.getItem("token");
     setToken(storedToken);
-    const storedCart = localStorage.getItem('cart');
+
+    const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
   }, []);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const resposne = await axios.get("http://127.0.0.1:8000/get_category");
+        if (resposne.status === 200) {
+          setCategory(resposne.data);
+        }
+      } catch (error) {}
+    };
+    fetchCategory();
+  }, []);
+
+  useEffect(() => {
+    const result = products.filter((prod) =>
+      prod.name.toLowerCase().includes(searchProd.toLowerCase())
+    );
+    setFilteredProducts(result);
+  }, [searchProd, products]);
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -47,13 +72,14 @@ const Product = () => {
     setSelectedProduct(null);
   };
 
-
   const handleUpdate = (product) => {
     openModal(product);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+
     try {
       const response = await axios.delete(
         `http://localhost:8000/products_delete/${id}`,
@@ -61,15 +87,18 @@ const Product = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       if (response.status === 200) {
         setProducts(products.filter((product) => product.id !== id));
-        toast.success('Product deleted successfully');
+        toast.success("Product deleted successfully");
       } else {
-        toast.error('Unauthorized: You do not have permission to delete this product.');
+        toast.error(
+          "Unauthorized: You do not have permission to delete this product."
+        );
       }
     } catch (error) {
-      toast.error('Error deleting product');
-      console.log(error);
+      toast.error("Error deleting product");
+      console.error(error);
     }
   };
 
@@ -84,7 +113,7 @@ const Product = () => {
           )
         : [...prevCart, { ...product, quantity: 1 }];
 
-      window.localStorage.setItem('cart', JSON.stringify(updatedCart));
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
       return updatedCart;
     });
 
@@ -94,12 +123,11 @@ const Product = () => {
       )
     );
 
-    toast.success('Item added to your cart');
+    toast.success("Item added to your cart");
   };
 
   const handleCartDelete = (quantityForDel, id) => {
     const cartItem = cart.find((cart) => cart.id === id);
-
     if (!cartItem) return;
 
     const updatedProducts = products.map((prod) =>
@@ -111,43 +139,88 @@ const Product = () => {
     const updatedCart = cart.filter((item) => item.id !== id);
     setCart(updatedCart);
     setProducts(updatedProducts);
-    window.localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const handleViewProduct = (id) => {
+    router.push(`/productShow/${id}`);
+  };
+
+  const handleCategoryView = (name) => {
+    router.push(`/prodCategory/${name}`);
   };
 
   const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <div>
-      {!token && (
-          <NavBar
-          quantity = {totalQuantity}
-            carts={cart}
-            products={products}
-            setProducts={setProducts}
-            handleDelete={handleCartDelete}
-            setCart={setCart}
-          />
-        )}
+      <NavBar
+        quantity={totalQuantity}
+        carts={cart}
+        products={filteredProducts}
+        setProducts={setProducts}
+        handleDelete={handleCartDelete}
+        setCart={setCart}
+        searchProd={searchProd}
+        setSearchProd={setSearchProd}
+      />
+      <div className="flex m-4 p-3">
+        {category.map((cat) => (
+          <div key={cat.id} className="m-4">
+            <img
+              className="mx-auto rounded-full h-24 w-24 m-4"
+              src={cat.imgUrl}
+              alt={cat.name}
+              onClick={() => handleCategoryView(cat.name)}
+            />
+            <h2 className="m-4">{cat.name}</h2>
+          </div>
+        ))}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {products.map((product) => (
-          <div key={product.id} className="border border-gray-300 rounded-lg shadow-lg p-4">
-            <img className="mx-auto rounded-full h-24 w-24 mb-4" src={product.imgUrl} alt={product.name} />
+        {filteredProducts.map((product) => (
+          <div
+            key={product.id}
+            className="border border-gray-300 rounded-lg shadow-lg p-4"
+          >
+            <img
+              className="mx-auto rounded-full h-24 w-24 mb-4"
+              src={product.imgUrl}
+              alt={product.name}
+            />
             <div className="text-center">
-              <h3 className="text-xl font-bold mb-2">Product Name : {product.name}</h3>
-              <p className="text-gray-600 mb-2">Product Description : {product.description}</p>
-              <p className="text-gray-800 font-semibold">Product Price: Rs {product.price}</p>
-             { token && <p className="text-gray-800 font-semibold"> Product Quantity {product.quantity}</p>}
+              <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+              <p className="text-gray-800 font-semibold"> Rs {product.price}</p>
+              {token && (
+                <p className="text-gray-800 font-semibold">
+                  Product Quantity {product.quantity}
+                </p>
+              )}
               {product.quantity > 0 ? (
                 !token ? (
-                  <Button variant="outline" className="mt-3" onClick={() => handleAddToCart(product)}>
-                    Add to Cart
-                  </Button>
+                  <div className="m-5 space-y-5">
+                    <Button
+                      variant="outline"
+                      className="m-3"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      Add to Cart
+                    </Button>
+                  </div>
                 ) : (
                   <div className="m-3 space-y-5">
-                    <Button variant="outline" className="w-full" onClick={() => handleUpdate(product)}>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleUpdate(product)}
+                    >
                       Update Product
                     </Button>
-                    <Button variant="outline" className="w-full" onClick={() => handleDelete(product.id)}>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleDelete(product.id)}
+                    >
                       Delete Product
                     </Button>
                   </div>
@@ -155,6 +228,13 @@ const Product = () => {
               ) : (
                 <p className="text-red-600 font-semibold">Out of Stock</p>
               )}
+              <Button
+                variant="outline"
+                className="m-3"
+                onClick={() => handleViewProduct(product.id)}
+              >
+                View Item
+              </Button>
             </div>
           </div>
         ))}
