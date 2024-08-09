@@ -5,14 +5,16 @@ import NavBar from "@/app/Components/Navbar";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
 
 const CategoryProduct = () => {
   const params = useParams();
-  const router = useRouter()
+  const router = useRouter();
   const category = decodeURIComponent(params.name);
   const [products, setProducts] = useState([]);
-  const [searchProd,setSearchProd] = useState("")
+  const [searchProd, setSearchProd] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -27,26 +29,81 @@ const CategoryProduct = () => {
     };
 
     fetchProduct();
+
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
   }, []);
 
   const handleViewProduct = (id) => {
     router.push(`/productShow/${id}`);
   };
 
-  useEffect(()=>{
-    const result = products.filter((prod)=>prod.name.toLowerCase().includes(searchProd.toLowerCase()))
-    setFilteredProducts(result)
-  },[searchProd,products])
+  useEffect(() => {
+    const result = products.filter((prod) =>
+      prod.name.toLowerCase().includes(searchProd.toLowerCase())
+    );
+    setFilteredProducts(result);
+  }, [searchProd, products]);
+
+  const handleAddToCart = (product) => {
+    setCart((prevCart) => {
+      const existingProduct = prevCart.find((item) => item.id === product.id);
+      const updatedCart = existingProduct
+        ? prevCart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        : [...prevCart, { ...product, quantity: 1 }];
+
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+      return updatedCart;
+    });
+
+    setProducts((prevProducts) =>
+      prevProducts.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
+      )
+    );
+
+    toast.success("Item added to your cart");
+  };
+
+  
+  const handleCartDelete = (quantityForDel, id) => {
+    const cartItem = cart.find((cart) => cart.id === id);
+    if (!cartItem) return;
+
+    const updatedProducts = products.map((prod) =>
+      prod.id === id
+        ? { ...prod, quantity: prod.quantity + quantityForDel }
+        : prod
+    );
+
+    const updatedCart = cart.filter((item) => item.id !== id);
+    setCart(updatedCart);
+    setProducts(updatedProducts);
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
+  const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <>
       <NavBar
-      products={filteredProducts}
-      setSearchProd={setSearchProd}
-      searchProd={searchProd}
+        quantity={totalQuantity}
+        carts={cart}
+        products={filteredProducts}
+        setProducts={setProducts}
+        handleDelete={handleCartDelete}
+        setCart={setCart}
+        setSearchProd={setSearchProd}
+        searchProd={searchProd}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {products
+        {filteredProducts
           .filter((prod) => prod.category === category)
           .map((product) => (
             <div
@@ -65,20 +122,29 @@ const CategoryProduct = () => {
                 </p>
                 {product.quantity > 0 ? (
                   <div>
-                    <Button variant="outline" className="m-3">
+                    <Button
+                      variant="outline"
+                      className="m-3"
+                      onClick={() => handleAddToCart(product)}
+                    >
                       Add to Cart
                     </Button>
                   </div>
                 ) : (
                   <p className="text-red-600 font-semibold">Out of Stock</p>
                 )}
-                <Button variant = "outline" className = "m-3" onClick={()=>handleViewProduct(product.id)}>
-                View Item
+                <Button
+                  variant="outline"
+                  className="m-3"
+                  onClick={() => handleViewProduct(product.id)}
+                >
+                  View Item
                 </Button>
               </div>
             </div>
           ))}
       </div>
+      <ToastContainer />
     </>
   );
 };

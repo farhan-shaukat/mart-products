@@ -7,14 +7,19 @@ from supabase import create_client
 import os
 from dotenv import load_dotenv
 import uuid
+from passlib.context import CryptContext
 
 load_dotenv()
+pwd_password = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter()
 
 URL = os.getenv("URL")
 API_KEY = os.getenv("API_KEY")
 supabase = create_client(URL, API_KEY)
+
+def get_password_hash(password: str) -> str:
+    return pwd_password.hash(password)
 
 async def upload_file(file: UploadFile) -> str:
     bucket_name = "UserImages"
@@ -58,7 +63,7 @@ async def user_register(
     new_user = UserRegister(
         name = name,
         email = email,
-        password = password,
+        password = get_password_hash(password),
         Gender = Gender,
         Address = Address,
         PhoneNumber = PhoneNumber,

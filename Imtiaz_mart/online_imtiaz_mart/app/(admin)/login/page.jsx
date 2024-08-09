@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
 import { z } from "zod";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -44,8 +44,7 @@ const Page = () => {
       try {
         const response = await axios.get("http://localhost:8000/products/");
         setProducts(response.data);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
     fetchProducts();
   }, []);
@@ -93,38 +92,15 @@ const Page = () => {
           toast.error(`Product with ID ${item.id} not found`);
         }
       }
-      toast.success("Product quantities updated successfully");
       localStorage.removeItem("cart");
+      router.push("/dashboard")
+      toast.success("Product quantities updated successfully");
     } catch (error) {
       toast.error("Error updating product quantities");
     }
   };
 
   const placeOrder = async (values) => {
-    try {
-      // Fetch user details
-      const response = await axios.get("http://127.0.0.1:8002/get_latest/");
-      const userDetail = response.data;
-
-      const userData = new URLSearchParams();
-      userData.append("username", userDetail.name);
-      userData.append("password", userDetail.password);
-
-      if (response.status === 200) {
-        // User login to get the token
-        const login = await axios.post(
-          "http://127.0.0.1:8001/user_token",
-          userData,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
-        );
-        if (login.status === 200) {
-          const { access_token } = login.data;
-          localStorage.setItem("token", access_token);
-
           try {
             const latestUserResponse = await axios.get(
               `http://127.0.0.1:8002/get_latest_name/`,
@@ -134,9 +110,10 @@ const Page = () => {
             );
             if (latestUserResponse.status === 200) {
               // Place order
+              const access_token = localStorage.getItem("token")
               const orderResponse = await axios.post(
                 "http://127.0.0.1:8003/Order_create/",
-                { products: order, userId: latestUserResponse.data.id},
+                { products: order, userId: localStorage.getItem("id")},
                 {
                   headers: {
                     "Content-Type": "application/json",
@@ -162,14 +139,6 @@ const Page = () => {
             toast.error("Error placing order");
           }
         }
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching user details or logging in:",
-        error.response?.data || error.message
-      );
-    }
-  };
 
   // Define the submit handler
   const onSubmit = async (values) => {
@@ -177,59 +146,85 @@ const Page = () => {
       if (order.length > 0) {
         openModal();
       }
-      // Make the POST request to your API
-      const response = await axios.post(
-        "http://127.0.0.1:8001/user_token",
-        values,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      if (response.status === 200) {
-        const { access_token } = response.data;
-        localStorage.setItem("token", access_token);
-        // Fetch the latest user data
-        const latestUserResponse = await axios.get(
-          `http://127.0.0.1:8002/get_latest_name/`,
+      if (!isOpen) {
+        // Make the POST request to your API
+        const response = await axios.post(
+          "http://127.0.0.1:8001/user_token",
+          values,
           {
-            params: { username: values.username },
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
           }
         );
+        if (response.status === 200) {
+          const { access_token } = response.data;
+          localStorage.setItem("token", access_token);
+          // Fetch the latest user data
+          const latestUserResponse = await axios.get(
+            `http://127.0.0.1:8002/get_latest_name/`,
+            {
+              params: { username: values.username },
+            }
+          );
 
-        if (order.length > 0) {
-          await placeOrder(values);
+          if (order.length > 0) {
+            await placeOrder(values);
+          }
+          if (latestUserResponse.data.role === "Admin") {
+            localStorage.setItem("role", latestUserResponse.data.role);
+            toast.success("Login successful.");
+            router.push("/dashboard");
+          } else {
+            localStorage.setItem("id", latestUserResponse.data.id);
+            toast.success("Login successful.");
+          }
+        } else if (response.status === 400) {
+          toast.error(
+            "Invalid credentials. Please check your username and password."
+          );
+        } else if (response.status === 401) {
+          toast.error("Please check your username and password.");
+        } else {
+          toast.error("Unexpected error occurred.");
         }
-        if(latestUserResponse.data.role === "Admin")
-        {
-          localStorage.setItem("role",latestUserResponse.data.role)
-          toast.success("Login successful.");
-          router.push("/dashboard");
-        }
-        else{
-        localStorage.setItem("id", latestUserResponse.data.id);
-        toast.success("Login successful.");
-        router.push("/dashboard");
-        }
-      } else if (response.status === 400) {
-        toast.error(
-          "Invalid credentials. Please check your username and password."
-        );
-      } else if (response.status === 401) {
-        toast.error("Please check your username and password.");
-      } else {
-        toast.error("Unexpected error occurred.");
       }
     } catch (error) {
       // Handle error response
-      toast.error("Error submitting the form. Please try again.");
+      toast.error(
+        "Invalid credentials. Please check your username and password."
+      );
+      console.log(error);
     }
+  };
+
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const handleCartDelete = (quantityForDel, id) => {
+    const cart = cartItems.find((cart) => cart.id === id);
+    if (!cart) return;
+
+    const updatedProducts = products.map((prod) =>
+      prod.id === id
+        ? { ...prod, quantity: prod.quantity + quantityForDel }
+        : prod
+    );
+
+    const updatedCart = cartItems.filter((item) => item.id !== id);
+    setCartItems(updatedCart);
+    setProducts(updatedProducts);
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   return (
     <>
-      <NavBar />
+      <NavBar
+        quantity={totalQuantity}
+        setCart={setCartItems}
+        carts={cartItems}
+        products={products}
+        setProducts={setProducts}
+        handleDelete={handleCartDelete}
+      />
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
@@ -283,7 +278,9 @@ const Page = () => {
         </div>
       </div>
       <ToastContainer />
-      {isOpen && <OrderDetail isOpen={isOpen} closeModal={closeModal} prod={products}/>}
+      {isOpen && (
+        <OrderDetail isOpen={isOpen} closeModal={closeModal} prod={products} />
+      )}
     </>
   );
 };

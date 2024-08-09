@@ -8,6 +8,7 @@ class OrderRegister(SQLModel, table = True):
     productQuantity: int = Field(nullable = False)
     productPrice: float = Field(nullable = False)
     totalPrice: float = Field(nullable = False, default = 0.0)
+    status : str = Field(default = "Pending", max_length = 50)
 
 
 

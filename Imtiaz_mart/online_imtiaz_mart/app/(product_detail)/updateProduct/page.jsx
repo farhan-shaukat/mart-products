@@ -73,7 +73,7 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
     formData.append("description", data.productDescription);
     formData.append("price", price);
     formData.append("quantity", quantity);
-    formData.append("categoryName", categoryName); // Send category name
+    formData.append("categoryName", categoryName); 
     if (image) formData.append("file", image);
 
     try {

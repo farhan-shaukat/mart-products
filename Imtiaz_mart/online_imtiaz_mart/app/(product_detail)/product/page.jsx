@@ -4,15 +4,11 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import UpdateProduct from "@/app/(product_detail)/updateProduct/page";
 import NavBar from "@/app/Components/Navbar";
 import { useRouter } from "next/navigation";
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [category, setCategory] = useState([]);
   const [searchProd, setSearchProd] = useState("");
@@ -62,46 +58,7 @@ const Product = () => {
     setFilteredProducts(result);
   }, [searchProd, products]);
 
-  const openModal = (product) => {
-    setSelectedProduct(product);
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsOpen(false);
-    setSelectedProduct(null);
-  };
-
-  const handleUpdate = (product) => {
-    openModal(product);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
-
-    try {
-      const response = await axios.delete(
-        `http://localhost:8000/products_delete/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setProducts(products.filter((product) => product.id !== id));
-        toast.success("Product deleted successfully");
-      } else {
-        toast.error(
-          "Unauthorized: You do not have permission to delete this product."
-        );
-      }
-    } catch (error) {
-      toast.error("Error deleting product");
-      console.error(error);
-    }
-  };
-
+  
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find((item) => item.id === product.id);
@@ -197,7 +154,6 @@ const Product = () => {
                 </p>
               )}
               {product.quantity > 0 ? (
-                !token ? (
                   <div className="m-5 space-y-5">
                     <Button
                       variant="outline"
@@ -207,25 +163,7 @@ const Product = () => {
                       Add to Cart
                     </Button>
                   </div>
-                ) : (
-                  <div className="m-3 space-y-5">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => handleUpdate(product)}
-                    >
-                      Update Product
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Delete Product
-                    </Button>
-                  </div>
-                )
-              ) : (
+                ): (
                 <p className="text-red-600 font-semibold">Out of Stock</p>
               )}
               <Button
@@ -240,20 +178,6 @@ const Product = () => {
         ))}
       </div>
       <ToastContainer />
-      <div className="text-center">
-        {token && (
-          <Button variant="outline" className="ml-4">
-            <Link href="/addproduct">Add Product</Link>
-          </Button>
-        )}
-      </div>
-      {selectedProduct && token && (
-        <UpdateProduct
-          isOpen={isOpen}
-          closeModal={closeModal}
-          product={selectedProduct}
-        />
-      )}
     </div>
   );
 };

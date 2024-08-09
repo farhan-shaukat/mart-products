@@ -24,6 +24,13 @@ const ProductModal = () => {
     };
 
     fetchProducts();
+
+    const storedCart = localStorage.getItem('cart')
+    if(storedCart)
+    {
+      setCart(JSON.parse(storedCart))
+    }
+
   }, []);
 
   const handleAddToCart = (product) => {
@@ -50,10 +57,35 @@ const ProductModal = () => {
     toast.success("Item added to your cart");
   };
 
+  const TotalQuantity = (cart.reduce((acc,item)=> acc + item.quantity, 0))
+
+  
+  const handleCartDelete = (quantityForDel, id) => {
+    const cartItem = cart.find((cart) => cart.id === id);
+    if (!cartItem) return;
+
+    const updatedProducts = products.map((prod) =>
+      prod.id === id
+        ? { ...prod, quantity: prod.quantity + quantityForDel }
+        : prod
+    );
+
+    const updatedCart = cart.filter((item) => item.id !== id);
+    setCart(updatedCart);
+    setProducts(updatedProducts);
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
 
   return (
     <>
-      <NavBar/>
+      <NavBar
+      quantity={TotalQuantity}
+      carts={cart}
+      setCart={setCart}
+      setProducts={setProducts}
+      products={products}
+      handleDelete={handleCartDelete}
+      />
      
     <div className="text-center justify-center flex mx-auto">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] overflow-y-auto h-screen">

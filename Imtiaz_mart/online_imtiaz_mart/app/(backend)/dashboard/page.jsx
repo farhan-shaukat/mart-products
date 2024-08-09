@@ -1,18 +1,25 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Product from "@/app/(product_detail)/product/page";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "@/app/Components/Slidebar";
 import { Button } from "@/components/ui/button";
 import { any, z } from "zod";
 import NavBar from "@/app/Components/Navbar";
-
+import Link from "next/link";
+import UpdateProduct from "@/app/(product_detail)/updateProduct/page";
+import { isAuthenticated } from "@/Utils/Auth";
+import { redirect } from "next/navigation";
+import { useLayoutEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const [cartItems, setCartItems] = useState([]);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [showProducts, setShowProducts] = useState(false);
   const [showCategory, setShowCategory] = useState(false);
   const [showUser, setShowUser] = useState(false);
@@ -25,6 +32,7 @@ const Page = () => {
   const [img, setImg] = useState(null);
   const [updateCategory, setUpdateCategory] = useState(null);
   const [token, setToken] = useState(null);
+  const [role, setRole] = useState(null);
   const [id, setId] = useState(null);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -33,12 +41,29 @@ const Page = () => {
   const [userGender, setUserGender] = useState("");
   const [userImg, setUserImg] = useState(null);
   const [updateUser, setUpdateUser] = useState(null);
+  useEffect(() => {
+    const cartJSON = localStorage.getItem("cart");
+    if (cartJSON) {
+      const items = JSON.parse(cartJSON);
+      setCartItems(items);
+    }
+  }, []);
+  
+  const router = useRouter()
+
+  useLayoutEffect(() => {
+    if (!isAuthenticated()) {
+      redirect("/login");
+    }
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     const id = localStorage.getItem("id");
     setToken(token);
     setId(id);
+    setRole(role);
   }, []);
 
   const toggleSidebar = () => {
@@ -101,6 +126,46 @@ const Page = () => {
     fetchProducts();
   };
 
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleUpdate = (product) => {
+    openModal(product);
+  };
+
+  const handleDeleteProducts = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/products_delete/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        setProducts(products.filter((product) => product.id !== id));
+        toast.success("Product deleted successfully");
+      } else {
+        toast.error(
+          "Unauthorized: You do not have permission to delete this product."
+        );
+      }
+    } catch (error) {
+      toast.error("Error deleting product");
+      console.error(error);
+    }
+  };
+
   const handleShowCategories = () => {
     setShowProducts(false);
     setShowUser(false);
@@ -142,89 +207,88 @@ const Page = () => {
     setFormVisible(true);
   };
 
-    const formSchema = z.object({
-      name: z.string().min(1, { message: "Name is required." }),
-      email: z.string().email({ message: "Invalid email address." }),
-      phoneNumber: z
-        .string()
-        .min(10, { message: "Phone number must be at least 10 digits." }),
-      address: z.string().min(1, { message: "Address is required." }),
-      gender: z.enum(["Male", "Female", "Other"], {
-        message: "Select a valid gender.",
-      }),
-      file: z.instanceof(File).optional(),
-    });
+  const formSchema = z.object({
+    name: z.string().min(1, { message: "Name is required." }),
+    email: z.string().email({ message: "Invalid email address." }),
+    phoneNumber: z
+      .string()
+      .min(10, { message: "Phone number must be at least 10 digits." }),
+    address: z.string().min(1, { message: "Address is required." }),
+    gender: z.enum(["Male", "Female", "Other"], {
+      message: "Select a valid gender.",
+    }),
+    file: z.instanceof(File).optional(),
+  });
 
-    const handleFileChange = (e) => {
-      if (e.target.files && e.target.files[0]) {
-        setUserImg(e.target.files[0]);
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setUserImg(e.target.files[0]);
+    }
+  };
+
+  const UserUpdateForm = async (e) => {
+    e.preventDefault();
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("name", userName);
+    formData.append("email", userEmail);
+    formData.append("PhoneNumber", userPhoneNumber);
+    formData.append("Address", userAddress);
+    formData.append("Gender", userGender);
+    if (userImg) {
+      formData.append("file", userImg);
+    }
+
+    try {
+      // Validate form fields
+      formSchema.parse({
+        name: userName,
+        email: userEmail,
+        phoneNumber: userPhoneNumber,
+        address: userAddress,
+        gender: userGender,
+        file: userImg,
+      });
+      // Make the API request
+      const response = await axios.put(
+        `http://127.0.0.1:8002/user_update/${updateUser.id}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (response.status === 200) {
+        toast.success("User updated successfully!");
+        // Assuming router is defined somewhere
+        setUpdateUser(null);
+        router.refresh();
+      } else if (response.status === 400) {
+        toast.error("Invalid data. Please check your input.");
+      } else if (response.status === 401) {
+        toast.error("Unauthorized access. Please check your credentials.");
+      } else {
+        toast.error("Unexpected error occurred.");
       }
-    };
-  
-    const UserUpdateForm = async (e) => {
-      e.preventDefault();
-  
-      // Prepare form data
-      const formData = new FormData();
-      formData.append("name", userName);
-      formData.append("email", userEmail);
-      formData.append("PhoneNumber", userPhoneNumber);
-      formData.append("Address", userAddress);
-      formData.append("Gender", userGender);
-      if (userImg) {
-        formData.append("file", userImg);
-      }
-  
-      try {
-        // Validate form fields
-        formSchema.parse({
-          name: userName,
-          email: userEmail,
-          phoneNumber: userPhoneNumber,
-          address: userAddress,
-          gender: userGender,
-          file: userImg
-        });
-        // Make the API request
-        const response = await axios.put(
-          `http://127.0.0.1:8002/user_update/${updateUser.id}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-  
-        if (response.status === 200) {
-          toast.success("User updated successfully!");
-          // Assuming router is defined somewhere
-          setUpdateUser(null)
-          window.location.reload();
-        } else if (response.status === 400) {
-          toast.error("Invalid data. Please check your input.");
-        } else if (response.status === 401) {
-          toast.error("Unauthorized access. Please check your credentials.");
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Handle validation errors
+        toast.error("Upload the Image");
+        console.log(error.errors);
+      } else if (error.response) {
+        // Handle API errors
+        if (error.response.status === 422) {
+          toast.error("Validation failed. Please check the form fields.");
         } else {
-          toast.error("Unexpected error occurred.");
+          toast.error("Error occurred during update.");
         }
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          // Handle validation errors
-          toast.error("Upload the Image");
-          console.log(error.errors);
-        } else if (error.response) {
-          // Handle API errors
-          if (error.response.status === 422) {
-            toast.error("Validation failed. Please check the form fields.");
-          } else {
-            toast.error("Error occurred during update.");
-          }
-        } else {
-          // Handle other errors
-          toast.error("Update failed. Please try again.");
-        }
-        console.log(error);
+      } else {
+        // Handle other errors
+        toast.error("Update failed. Please try again.");
       }
-    };
-  
-  
+      console.log(error);
+    }
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -240,7 +304,7 @@ const Page = () => {
 
       const formData = new FormData();
       formData.append("name", catName);
-      formData.append("file", img); 
+      formData.append("file", img);
 
       const data = {
         name: catName,
@@ -376,9 +440,40 @@ const Page = () => {
     }
   };
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:8003/orders_status/${orderId}`,
+        { status: newStatus },
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status == 200) {
+        toast.success("Order status updated successfully");
+        window.location.reload()
+        // Update the local state or refetch orders if needed
+      } else {
+        toast.error("Failed to update order status");
+      }
+    } catch (error) {
+      toast.error("Error updating order status");
+      console.error(error.message);
+      console.log(error);
+    };
+  };
+
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <>
-      <NavBar />
+      <NavBar
+      quantity={totalQuantity}
+      />
       <div className="flex">
         <Sidebar
           isOpen={isSidebarOpen}
@@ -401,12 +496,60 @@ const Page = () => {
           </h2>
           <main className="flex-1 p-6 bg-gray-100 overflow-auto">
             {showProducts && (
-              <div className="p-4">
-                {products.length > 0 ? (
-                  <Product products={products} />
-                ) : (
-                  <p>No products available</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="border border-gray-300 rounded-lg shadow-lg p-4"
+                  >
+                    <img
+                      className="mx-auto rounded-full h-24 w-24 mb-4"
+                      src={product.imgUrl}
+                      alt={product.name}
+                    />
+                    <div className="text-center">
+                      <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+                      <p className="text-gray-800 font-semibold">
+                        {" "}
+                        Rs {product.price}
+                      </p>
+                      <p className="text-gray-800 font-semibold">
+                        Product Quantity {product.quantity}
+                      </p>
+
+                      <div className="m-3 space-y-5">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => handleUpdate(product)}
+                        >
+                          Update Product
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => handleDeleteProducts(product.id)}
+                        >
+                          Delete Product
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {token && selectedProduct && (
+                  <UpdateProduct
+                    product={selectedProduct}
+                    isOpen={isOpen}
+                    closeModal={closeModal}
+                  />
                 )}
+                <div className="text-center">
+                  {token && (
+                    <Button variant="outline" className="ml-4">
+                      <Link href="/addproduct">Add Product</Link>
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -559,7 +702,7 @@ const Page = () => {
             )}
 
             {showOrders && (
-              <div className="grid grid-cols-1 gap-4 p-4">
+              <div className="grid grid-cols-1 gap-4 p-4" >
                 {(() => {
                   const filteredOrders = id
                     ? { [id]: groupedOrders[id] }
@@ -597,6 +740,35 @@ const Page = () => {
                                   <h2 className="text-lg mb-2">
                                     Product Quantity: {order.productQuantity}
                                   </h2>
+                                  <h2 className="text-lg mb-2">
+                                    Order Status: {order.status}
+                                  </h2>
+                                  {token && role && (
+                                    <div className="mt-2">
+                                      <select
+                                        value={order.status}
+                                        onChange={(e) =>
+                                          handleStatusChange(
+                                            order.userId,
+                                            e.target.value
+                                          )
+                                        }
+                                        className="border rounded p-2"
+                                      >
+                                        <option value="pending">Pending</option>
+                                        <option value="delivered">
+                                          Delivered
+                                        </option>
+                                        <option value="complete">
+                                          Complete
+                                        </option>
+                                        <option value="cancelled">
+                                          Cancelled
+                                        </option>
+                                        <option value="shipped">Shipped</option>
+                                      </select>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}
@@ -623,7 +795,7 @@ const Page = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                       {showUser && userProfile.length > 0 ? (
                         userProfile
-                          .filter((user) => user.id == id) // Correctly filter users based on ID
+                          .filter((user) => user.id == id)
                           .map((user) => (
                             <div
                               key={user.id}
@@ -794,18 +966,24 @@ const Page = () => {
                               className="mx-auto rounded-full h-24 w-24 mb-4"
                             />
                             <div className="text-center">
-                            <p className="text-xl font-bold mb-2">
-                               User id : {user.id}
+                              <p className="text-xl font-bold mb-2">
+                                User id : {user.id}
                               </p>
                               <p className="text-xl font-bold mb-2">
                                 User Name : {user.name}
                               </p>
-                              <p className="text-gray-600">User Email :{user.email}</p>
+                              <p className="text-gray-600">
+                                User Email :{user.email}
+                              </p>
                               <p className="text-gray-600">
                                 User PhoneNumber : {user.PhoneNumber}
                               </p>
-                              <p className="text-gray-600">User Gender: {user.Gender}</p>
-                              <p className="text-gray-600">User Address: {user.Address}</p>
+                              <p className="text-gray-600">
+                                User Gender: {user.Gender}
+                              </p>
+                              <p className="text-gray-600">
+                                User Address: {user.Address}
+                              </p>
                             </div>
                           </div>
                         ))
@@ -821,7 +999,6 @@ const Page = () => {
             )}
           </main>
         </div>
-
         <ToastContainer />
       </div>
     </>

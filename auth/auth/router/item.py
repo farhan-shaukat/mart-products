@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form,Query
-from sqlmodel import Session, select
-# from auth.model import User
+from sqlmodel import Session
 from auth.database import get_session
 from auth.auth_security import create_access_token, SECRET_KEY, ALGORITHM
 from passlib.context import CryptContext
@@ -74,11 +73,11 @@ async def verify_user(username: str) -> Dict[str, str]:
 async def userLogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
     user_data = await verify_user(user.username) 
     
-    if user.username != user_data['username'] or user.password != user_data['password']:
+    if user.username != user_data['username'] or not verify_password( user.password ,user_data['password']):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail = "Invalid username or password",
+            headers = {"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}

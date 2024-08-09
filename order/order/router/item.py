@@ -27,7 +27,7 @@ async def verify_user(username: str) -> Dict[str, str]:
 
 router = APIRouter()
 
-@router.post("/Order_create/", response_model=OrderCreateResponse, tags=['Order'])
+@router.post("/Order_create/", response_model = OrderCreateResponse, tags=['Order'])
 async def Order_create(
     products: List[dict] = Body(),
     userId : int = Body(),
@@ -35,7 +35,6 @@ async def Order_create(
     token: str = Depends(verify_token)
 ):
     orders = []
-    print(products)
 
     for product in products:
         productName = product.get("productName")
@@ -79,7 +78,7 @@ async def Order_create(
 
     return {"orders": order_list, "total_price": total_price}
 
-@router.get("/get_order", response_model=OrderCreateResponse, tags=["Order"])
+@router.get("/get_order", response_model = OrderCreateResponse, tags=["Order"])
 async def get_order(
     session: Session = Depends(get_session)
 ):
@@ -94,10 +93,44 @@ async def get_order(
             "productName": order.productName,
             "productQuantity": order.productQuantity,
             "productPrice": order.productPrice,
-            "totalPrice": order.totalPrice
+            "totalPrice": order.totalPrice,
+            "status" : order.status
         }
         for order in orders
     ]
     total_price = sum(order["totalPrice"] for order in order_list)
 
     return {"orders": order_list, "total_price": total_price}
+
+
+
+@router.put("/orders_status/{id}", tags=["Order"], response_model = OrderCreateResponse)
+async def update_order_status(
+    id: int, 
+    status: str = Form(...), 
+    session: Session = Depends(get_session),
+):     
+    orders = session.query(OrderRegister).filter(OrderRegister.userId == id).all()
+    if not orders:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="No orders found for this user"
+        )
+    
+    if status not in ["pending", "shipped", "delivered", "cancelled"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Invalid status"
+        )
+    
+    total_price = 0.0
+    for order in orders:
+        order.status = status
+        total_price += order.productPrice
+    
+    session.commit()
+    
+    return {
+        "orders": orders,
+        "total_price": total_price
+    }
