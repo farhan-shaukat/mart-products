@@ -3,8 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import {toast,ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import NavBar from "@/app/Components/Navbar";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductModal = () => {
   const params = useParams();
@@ -19,18 +20,15 @@ const ProductModal = () => {
         if (response.status === 200) {
           setProducts(response.data);
         }
-      } catch (error) {
-      } 
+      } catch (error) {}
     };
 
     fetchProducts();
 
-    const storedCart = localStorage.getItem('cart')
-    if(storedCart)
-    {
-      setCart(JSON.parse(storedCart))
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
     }
-
   }, []);
 
   const handleAddToCart = (product) => {
@@ -57,9 +55,8 @@ const ProductModal = () => {
     toast.success("Item added to your cart");
   };
 
-  const TotalQuantity = (cart.reduce((acc,item)=> acc + item.quantity, 0))
+  const TotalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  
   const handleCartDelete = (quantityForDel, id) => {
     const cartItem = cart.find((cart) => cart.id === id);
     if (!cartItem) return;
@@ -79,57 +76,69 @@ const ProductModal = () => {
   return (
     <>
       <NavBar
-      quantity={TotalQuantity}
-      carts={cart}
-      setCart={setCart}
-      setProducts={setProducts}
-      products={products}
-      handleDelete={handleCartDelete}
+        quantity={TotalQuantity}
+        carts={cart}
+        setCart={setCart}
+        setProducts={setProducts}
+        products={products}
+        handleDelete={handleCartDelete}
       />
-     
-    <div className="text-center justify-center flex mx-auto">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] overflow-y-auto h-screen">
-        {products &&
-          products
-            .filter((prod) => prod.id == id)
-            .map((product) => (
-              <div key={product.id} className="flex flex-col items-center space-y-4">
-                <img
-                  className="w-32 h-32 object-cover rounded-full mb-4"
-                  src={product.imgUrl}
-                  alt={product.name}
-                />
-                <h2 className="text-2xl font-bold mb-2">Product Details</h2>
-                <p className="text-lg">
-                  <strong>Name:</strong> {product.name}
-                </p>
-                <p className="text-lg">
-                  <strong>Description:</strong> {product.description}
-                </p>
-                <p className="text-lg">
-                  <strong>Price:</strong> Rs {product.price}
-                </p>
-                <p className="text-lg">
-                  <strong>Category:</strong> {product.category}
-                </p>
-                {product.quantity > 0 ? (
-                  <div className="space-y-4">
-                    <Button
-                      variant="outline"
-                      className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="text-red-600 font-semibold">Out of Stock</p>
-                )}
-              </div>
-            ))}
+
+      <div className="text-center justify-center flex mx-auto">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] overflow-y-auto h-screen">
+          {products &&
+            products
+              .filter((prod) => prod.id == id)
+              .map((product) => (
+                <div key={product.id} className="flex flex-col items-center space-y-4">
+                  <img
+                    className="w-32 h-32 object-cover rounded-full mb-4"
+                    src={product.imgUrl}
+                    alt={product.name}
+                  />
+                  <h2 className="text-2xl font-bold mb-2">Product Details</h2>
+                  <p className="text-lg">
+                    <strong>Name:</strong> {product.name}
+                  </p>
+                  <p className="text-lg">
+                    <strong>Description:</strong> {product.description}
+                  </p>
+                  <p className="text-lg">
+                    <strong>Price:</strong> Rs {product.price}
+                  </p>
+                  <p className="text-lg">
+                    <strong>Category:</strong> {product.category}
+                  </p>
+                  {product.quantity > 0 ? (
+                    <div className="space-y-4">
+                      <Button
+                        variant="outline"
+                        className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-red-600 font-semibold">Out of Stock</p>
+                  )}
+                </div>
+              ))}
+        </div>
       </div>
-    </div>
-    <ToastContainer/>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        className="text-sm sm:text-base md:text-lg"
+      />
     </>
   );
 };

@@ -39,28 +39,27 @@ const OrderDetail = ({ isOpen, closeModal, prod}) => {
   if (!isModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="fixed inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-8 rounded-lg z-10 w-1/3">
-        <h2 className="text-xl font-bold mb-4">Order Details</h2>
-        <div className="flex flex-col gap-2">
+    <div className="fixed inset-0 flex items-center justify-center z-50 overflow-y-auto h-screen">
+      <div className="bg-white p-8 sm:p-6 max-w-md sm:max-w-2xl lg:max-w-4xl w-full mx-auto rounded-lg z-10 overflow-y-auto">
+        <h2 className="text-2xl text-center sm:text-3xl font-bold mb-4">Order Details</h2>
+        <div className="space-y-2 sm:space-y-4 overflow-y-auto max-h-[50vh]">
           {cartItems.length > 0 ? (
             <>
               {cartItems.map((item) => (
                 <div
-                  key={item.id}
-                  className="flex justify-between items-center"
-                >
-                  <span>{item.name}</span>
-                  <span>{item.quantity}</span>
-                  <span>{item.price}</span>
-                  <span>Rs {item.price * item.quantity}</span>
-                  {!checkStock(item.id, item.quantity) && (
-                    <p className="text-red-500 ml-4">
-                      Not enough stock available
-                    </p>
-                  )}
-                </div>
+                key={item.id}
+                className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 border border-gray-300 rounded-lg shadow-sm items-center"
+              >
+                <span className="font-semibold">{item.name}</span>
+                <span className="text-center sm:text-left">{item.quantity}</span>
+                <span className="text-center sm:text-left">Rs {item.price}</span>
+                <span className="text-center sm:text-left">Rs {item.price * item.quantity}</span>
+                {!checkStock(item.id, item.quantity) && (
+                  <p className="text-red-500 col-span-2 sm:col-span-4 mt-2 sm:mt-0">
+                    Not enough stock available
+                  </p>
+                )}
+              </div>              
               ))}
               <div className="flex justify-between items-center mt-4">
                 <span className="font-bold">Total Bill:</span>

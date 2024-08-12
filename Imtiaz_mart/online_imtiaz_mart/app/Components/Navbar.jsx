@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
+import { faCartShopping, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CartDetail from "./CartDetail";
@@ -21,6 +21,7 @@ const NavBar = ({
   const [token, setToken] = useState(null);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [search, setSearch] = useState(searchProd || "");
 
   useEffect(() => {
@@ -53,6 +54,10 @@ const NavBar = ({
     e.preventDefault();
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
     <div className="bg-slate-600 w-full">
       <nav className="container mx-auto flex justify-between items-center px-4 xl:px-0 py-2">
@@ -61,13 +66,7 @@ const NavBar = ({
             <Image src="/img/logo.jpeg" alt="Logo" width={56} height={56} />
           </div>
 
-          <Button
-            variant="outline"
-            className="px-4 py-2 hover:bg-white hover:text-slate-600  ml-3 mr-5"
-          >
-            <Link href="/">Home</Link>
-          </Button>
-          <form onSubmit={handleSearchSubmit} className="flex flex-grow">
+          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-grow">
             <input
               type="text"
               placeholder="Search"
@@ -77,32 +76,46 @@ const NavBar = ({
             />
           </form>
         </div>
+
         <div className="flex items-center space-x-5">
-          {token ? (
+          <button onClick={toggleMenu} className="md:hidden text-white">
+            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="text-2xl" />
+          </button>
+          <div className={`flex-col ${isMenuOpen ? "flex" : "hidden"} md:flex md:flex-row space-y-4 md:space-y-0 md:space-x-5`}>
             <Button
               variant="outline"
-              className="px-4 py-2 hover:bg-white hover:text-slate-600  ml-3 mr-5"
-              onClick={handleLogout}
+              className="px-4 py-2 hover:bg-white hover:text-slate-600"
             >
-              Logout
+              <Link href="/">Home</Link>
             </Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                className="px-4 py-2 hover:bg-white hover:text-slate-600  ml-3 mr-5"
-              >
-                <Link href="/login">Login</Link>
-              </Button>
 
+            {token ? (
               <Button
                 variant="outline"
-                className="px-4 py-2 hover:bg-white hover:text-slate-600  ml-3 mr-5"
+                className="px-4 py-2 hover:bg-white hover:text-slate-600"
+                onClick={handleLogout}
               >
-                <Link href="/register">Register</Link>
+                Logout
               </Button>
-            </>
-          )}
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="px-4 py-2 hover:bg-white hover:text-slate-600"
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="px-4 py-2 hover:bg-white hover:text-slate-600"
+                >
+                  <Link href="/register">Register</Link>
+                </Button>
+              </>
+            )}
+          </div>
+
           <div
             className="relative flex items-center cursor-pointer"
             onClick={openModalCart}
@@ -111,14 +124,25 @@ const NavBar = ({
               icon={faCartShopping}
               className="text-2xl text-white"
             />
-            {
-              <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full px-2 py-1 text-xs">
-                {quantity}
-              </span>
-            }
+            <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full px-2 py-1 text-xs">
+              {quantity}
+            </span>
           </div>
         </div>
       </nav>
+
+      <div className="md:hidden px-4 py-4">
+        <form onSubmit={handleSearchSubmit} className="flex flex-grow">
+          <input
+            type="text"
+            placeholder="Search"
+            value={search}
+            onChange={handleSearchChange}
+            className="p-2 rounded bg-white text-black w-full"
+          />
+        </form>
+      </div>
+
       {!token && (
         <CartDetail
           isOpen={isOpen}

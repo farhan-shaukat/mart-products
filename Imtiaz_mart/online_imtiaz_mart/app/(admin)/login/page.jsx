@@ -178,6 +178,8 @@ const Page = () => {
           } else {
             localStorage.setItem("id", latestUserResponse.data.id);
             toast.success("Login successful.");
+            router.push("/dashboard");
+
           }
         } else if (response.status === 400) {
           toast.error(

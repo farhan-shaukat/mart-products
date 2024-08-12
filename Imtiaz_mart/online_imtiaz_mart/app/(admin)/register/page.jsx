@@ -254,8 +254,8 @@ const Page = () => {
         setProducts={setProducts}
         handleDelete={handleCartDelete}
       />
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 pt-10">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 pt-3">
+        <div className="bg-white p-8 rounded-lg shadow-md w-[90%] max-w-md">
           <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
             Registration
           </h2>

@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@/components/ui/button";
 import NavBar from "@/app/Components/Navbar";
 import { useRouter } from "next/navigation";
+
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState(null);
@@ -121,19 +122,20 @@ const Product = () => {
         searchProd={searchProd}
         setSearchProd={setSearchProd}
       />
-      <div className="flex m-4 p-3">
-        {category.map((cat) => (
-          <div key={cat.id} className="m-4">
-            <img
-              className="mx-auto rounded-full h-24 w-24 m-4"
-              src={cat.imgUrl}
-              alt={cat.name}
-              onClick={() => handleCategoryView(cat.name)}
-            />
-            <h2 className="m-4">{cat.name}</h2>
-          </div>
-        ))}
-      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 m-4 p-3">
+  {category.map((cat) => (
+    <div key={cat.id} className="flex flex-col items-center text-center">
+      <img
+        className="rounded-full h-20 w-20 mb-2 transition-transform duration-200 hover:scale-105"
+        src={cat.imgUrl}
+        alt={cat.name}
+        onClick={() => handleCategoryView(cat.name)}
+      />
+      <h2 className="text-sm sm:text-base font-medium">{cat.name}</h2>
+    </div>
+  ))}
+</div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {filteredProducts.map((product) => (
           <div
@@ -177,7 +179,19 @@ const Product = () => {
           </div>
         ))}
       </div>
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        className="text-sm sm:text-base md:text-lg"
+      />
     </div>
   );
 };

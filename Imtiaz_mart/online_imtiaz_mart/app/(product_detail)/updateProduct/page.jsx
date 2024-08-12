@@ -120,39 +120,32 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
   };
 
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 p-4">
       <ToastContainer />
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full overflow-y-auto max-h-[90vh]">
         <h2 className="text-2xl font-bold mb-4">Update Product</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Product Name
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Product Name</label>
             <input
               type="text"
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productName")}
             />
             {errors.productName && (
-              <p className="text-red-600">{errors.productName.message}</p>
+              <p className="text-red-600 text-sm">{errors.productName.message}</p>
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Product Description
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Product Description</label>
             <textarea
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productDescription")}
               rows={3}
             />
             {errors.productDescription && (
-              <p className="text-red-600">
-                {errors.productDescription.message}
-              </p>
+              <p className="text-red-600 text-sm">{errors.productDescription.message}</p>
             )}
           </div>
           <div className="mb-4">
@@ -164,26 +157,22 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
               {...register("price")}
             />
             {errors.price && (
-              <p className="text-red-600">{errors.price.message}</p>
+              <p className="text-red-600 text-sm">{errors.price.message}</p>
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Quantity
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Quantity</label>
             <input
               type="number"
               className="border border-gray-300 p-2 rounded w-full"
               {...register("quantity")}
             />
             {errors.quantity && (
-              <p className="text-red-600">{errors.quantity.message}</p>
+              <p className="text-red-600 text-sm">{errors.quantity.message}</p>
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Categories
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Categories</label>
             <select
               className="border border-gray-300 p-2 rounded w-full"
               {...register("prodCategory")}
@@ -196,7 +185,7 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
               ))}
             </select>
             {errors.prodCategory && (
-              <p className="text-red-600">{errors.prodCategory.message}</p>
+              <p className="text-red-600 text-sm">{errors.prodCategory.message}</p>
             )}
           </div>
           <div className="mb-4">
@@ -215,12 +204,12 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
                 />
               )}
             />
-            {!image && <p className="text-red-600">Please upload an image.</p>}
+            {!image && <p className="text-red-600 text-sm">Please upload an image.</p>}
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               type="button"
-              className="mr-4 py-2 px-4 rounded bg-gray-500 text-white"
+              className="py-2 px-4 rounded bg-gray-500 text-white"
               onClick={closeModal}
             >
               Close
@@ -237,6 +226,7 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
       </div>
     </div>
   );
-};
+  
+};  
 
 export default UpdateProduct;
