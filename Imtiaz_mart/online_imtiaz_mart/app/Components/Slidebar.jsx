@@ -11,17 +11,18 @@ const Sidebar = ({
 }) => {
   const [token, setToken] = useState(null);
   const [id, setId] = useState(null);
-  const [role,setRole] = useState(null)
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const id = localStorage.getItem("id");
-    const role = localStorage.getItem("role");
-    setToken(token);
-    setId(id);
-    setRole(role)
-
-  }, []);
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem("token");
+      const storedId = localStorage.getItem("id");
+      const storedRole = localStorage.getItem("role");
+      setToken(storedToken);
+      setId(storedId);
+      setRole(storedRole);
+    }
+  }, [setId, setRole, setToken]);
 
   return (
     <aside
@@ -53,7 +54,7 @@ const Sidebar = ({
       </div>
       <nav className="mt-4">
         <ul className="space-y-2">
-          {!id && token && role && (
+          {(!id && (token && role)) && (
             <>
               <li>
                 <button
@@ -71,7 +72,6 @@ const Sidebar = ({
                   Categories
                 </button>
               </li>
-
               <li>
                 <button
                   className="block py-2 px-4 hover:bg-gray-700"
@@ -90,6 +90,11 @@ const Sidebar = ({
               </li>
             </>
           )}
+        </ul>
+      </nav>
+
+      <nav className="mt-4">
+        <ul className="space-y-2">
           {id && token && (
             <>
               <li>

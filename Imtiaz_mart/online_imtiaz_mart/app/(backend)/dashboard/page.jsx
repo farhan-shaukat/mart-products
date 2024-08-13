@@ -13,6 +13,7 @@ import { isAuthenticated } from "@/Utils/Auth";
 import { redirect } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Page = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -42,169 +43,188 @@ const Page = () => {
   const [userImg, setUserImg] = useState(null);
   const [updateUser, setUpdateUser] = useState(null);
   useEffect(() => {
-    const cartJSON = localStorage.getItem("cart");
-    if (cartJSON) {
-      const items = JSON.parse(cartJSON);
-      setCartItems(items);
+    if (typeof window !== "undefined") {
+      const cartJSON = localStorage.getItem("cart");
+      if (cartJSON) {
+        const items = JSON.parse(cartJSON);
+        setCartItems(items);
+      }
     }
   }, []);
-  
-  const router = useRouter()
+
+  const router = useRouter();
 
   useLayoutEffect(() => {
-    if (!isAuthenticated()) {
-      redirect("/login");
+    if (typeof window !== "undefined") {
+      if (!isAuthenticated()) {
+        redirect("/login");
+      }
     }
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    const id = localStorage.getItem("id");
-    setToken(token);
-    setId(id);
-    setRole(role);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const id = localStorage.getItem("id");
+      setToken(token);
+      setId(id);
+      setRole(role);
+    }
   }, []);
 
   const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
+      setSidebarOpen(!isSidebarOpen);
   };
 
   const fetchProducts = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/products/");
-      if (response.status === 200) {
-        setProducts(response.data);
+    if (typeof window !== "undefined") {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/products/");
+        if (response.status === 200) {
+          setProducts(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error in Fetching Products");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Error in Fetching Products");
     }
   };
 
   const fetchCategories = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/get_category");
-      if (response.status === 200) {
-        setCategory(response.data);
+    if (typeof window !== "undefined") {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/get_category");
+        if (response.status === 200) {
+          setCategory(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error in Fetching Categories");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Error in Fetching Categories");
     }
   };
 
   const fetchUserProfile = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8002/get_user/");
-      if (response.status === 200) {
-        setUserProfile(response.data);
+    if (typeof window !== "undefined") {
+      try {
+        const response = await axios.get("http://127.0.0.1:8002/get_user/");
+        if (response.status === 200) {
+          setUserProfile(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error in Fetching User Profile");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Error in Fetching User Profile");
     }
   };
-
   const fetchUserOrder = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8003/get_order");
-      if (response.status === 200) {
-        setUserOrder(response.data.orders);
+    if (typeof window !== "undefined") {
+      try {
+        const response = await axios.get("http://127.0.0.1:8003/get_order");
+        if (response.status === 200) {
+          setUserOrder(response.data.orders);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Error in Fetching User Order");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("Error in Fetching User Order");
     }
   };
 
   const handleShowProducts = () => {
-    setShowCategory(false);
-    setShowUser(false);
-    setShowOrders(false);
-    setShowProducts(true);
-    fetchProducts();
+      setShowCategory(false);
+      setShowUser(false);
+      setShowOrders(false);
+      setShowProducts(true);
+      fetchProducts();
   };
 
   const openModal = (product) => {
-    setSelectedProduct(product);
-    setIsOpen(true);
+    if (typeof window !== "undefined") {
+      setSelectedProduct(product);
+      setIsOpen(true);
+    }
   };
 
   const closeModal = () => {
-    setIsOpen(false);
-    setSelectedProduct(null);
+      setIsOpen(false);
+      setSelectedProduct(null);
   };
 
   const handleUpdate = (product) => {
-    openModal(product);
+      openModal(product);
   };
 
   const handleDeleteProducts = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
+    if (typeof window !== "undefined") {
+      if (!window.confirm("Are you sure you want to delete this product?"))
+        return;
 
-    try {
-      const response = await axios.delete(
-        `http://localhost:8000/products_delete/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setProducts(products.filter((product) => product.id !== id));
-        toast.success("Product deleted successfully");
-      } else {
-        toast.error(
-          "Unauthorized: You do not have permission to delete this product."
+      try {
+        const response = await axios.delete(
+          `http://localhost:8000/products_delete/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
+
+        if (response.status === 200) {
+          setProducts(products.filter((product) => product.id !== id));
+          toast.success("Product deleted successfully");
+        } else {
+          toast.error(
+            "Unauthorized: You do not have permission to delete this product."
+          );
+        }
+      } catch (error) {
+        toast.error("Error deleting product");
+        console.error(error);
       }
-    } catch (error) {
-      toast.error("Error deleting product");
-      console.error(error);
     }
   };
 
   const handleShowCategories = () => {
-    setShowProducts(false);
-    setShowUser(false);
-    setShowOrders(false);
-    setShowCategory(true);
-    fetchCategories();
+      setShowProducts(false);
+      setShowUser(false);
+      setShowOrders(false);
+      setShowCategory(true);
+      fetchCategories();
   };
 
   const handleShowUser = () => {
     setShowProducts(false);
-    setShowCategory(false);
-    setShowOrders(false);
-    setShowUser(true);
-    fetchUserProfile();
-  };
+      setShowCategory(false);
+      setShowOrders(false);
+      setShowUser(true);
+      fetchUserProfile();
+    }
 
   const handleShowOrder = () => {
-    setShowProducts(false);
-    setShowCategory(false);
-    setShowUser(false);
-    setShowOrders(true);
-    fetchUserOrder();
+      setShowProducts(false);
+      setShowCategory(false);
+      setShowUser(false);
+      setShowOrders(true);
+      fetchUserOrder();
   };
 
   const groupOrdersByUserId = (orders) => {
-    return orders.reduce((groups, order) => {
-      const { userId } = order;
-      if (!groups[userId]) {
-        groups[userId] = [];
-      }
-      groups[userId].push(order);
-      return groups;
-    }, {});
+    if (typeof window !== "undefined") {
+      return orders.reduce((groups, order) => {
+        const { userId } = order;
+        if (!groups[userId]) {
+          groups[userId] = [];
+        }
+        groups[userId].push(order);
+        return groups;
+      }, {});
+    }
   };
 
   const groupedOrders = groupOrdersByUserId(userOrder);
 
   const formShow = () => {
-    setFormVisible(true);
+      setFormVisible(true);
   };
 
   const formSchema = z.object({
@@ -217,263 +237,286 @@ const Page = () => {
     gender: z.enum(["Male", "Female", "Other"], {
       message: "Select a valid gender.",
     }),
-    file: z.instanceof(File).optional(),
+    file: z.any().optional(),
   });
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setUserImg(e.target.files[0]);
+    if (typeof window !== "undefined") {
+      if (e.target.files && e.target.files[0]) {
+        setUserImg(e.target.files[0]);
+      }
     }
   };
 
   const UserUpdateForm = async (e) => {
-    e.preventDefault();
+    if (typeof window !== "undefined") {
+      e.preventDefault();
 
-    // Prepare form data
-    const formData = new FormData();
-    formData.append("name", userName);
-    formData.append("email", userEmail);
-    formData.append("PhoneNumber", userPhoneNumber);
-    formData.append("Address", userAddress);
-    formData.append("Gender", userGender);
-    if (userImg) {
-      formData.append("file", userImg);
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("name", userName);
+      formData.append("email", userEmail);
+      formData.append("PhoneNumber", userPhoneNumber);
+      formData.append("Address", userAddress);
+      formData.append("Gender", userGender);
+      if (userImg) {
+        if (typeof window !== "undefined") {
+        formData.append("file", userImg);
+      }
     }
 
-    try {
-      // Validate form fields
-      formSchema.parse({
-        name: userName,
-        email: userEmail,
-        phoneNumber: userPhoneNumber,
-        address: userAddress,
-        gender: userGender,
-        file: userImg,
-      });
-      // Make the API request
-      const response = await axios.put(
-        `http://127.0.0.1:8002/user_update/${updateUser.id}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      try {
+        // Validate form fields
+        if (typeof window !== "undefined") {
+        formSchema.parse({
+          name: userName,
+          email: userEmail,
+          phoneNumber: userPhoneNumber,
+          address: userAddress,
+          gender: userGender,
+          file: userImg,
+        });
+      }
+        // Make the API request
+        const response = await axios.put(
+          `http://127.0.0.1:8002/user_update/${updateUser.id}`,
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
 
-      if (response.status === 200) {
-        toast.success("User updated successfully!");
-        // Assuming router is defined somewhere
-        setUpdateUser(null);
-        router.refresh();
-      } else if (response.status === 400) {
-        toast.error("Invalid data. Please check your input.");
-      } else if (response.status === 401) {
-        toast.error("Unauthorized access. Please check your credentials.");
-      } else {
-        toast.error("Unexpected error occurred.");
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Handle validation errors
-        toast.error("Upload the Image");
-        console.log(error.errors);
-      } else if (error.response) {
-        // Handle API errors
-        if (error.response.status === 422) {
-          toast.error("Validation failed. Please check the form fields.");
+        if (response.status === 200) {
+          toast.success("User updated successfully!");
+          // Assuming router is defined somewhere
+          setUpdateUser(null);
+          router.refresh();
+        } else if (response.status === 400) {
+          toast.error("Invalid data. Please check your input.");
+        } else if (response.status === 401) {
+          toast.error("Unauthorized access. Please check your credentials.");
         } else {
-          toast.error("Error occurred during update.");
+          toast.error("Unexpected error occurred.");
         }
-      } else {
-        // Handle other errors
-        toast.error("Update failed. Please try again.");
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          // Handle validation errors
+          toast.error("Upload the Image");
+          console.log(error.errors);
+        } else if (error.response) {
+          // Handle API errors
+          if (error.response.status === 422) {
+            toast.error("Validation failed. Please check the form fields.");
+          } else {
+            toast.error("Error occurred during update.");
+          }
+        } else {
+          // Handle other errors
+          toast.error("Update failed. Please try again.");
+        }
+        console.log(error);
       }
-      console.log(error);
     }
   };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    if (typeof window !== "undefined") {
+      e.preventDefault();
 
-    const CategorySchema = z.object({
-      name: z.string().min(1, "Name is required"),
-      img: z.instanceof(File, "Image is required"),
-    });
+      const CategorySchema = z.object({
+        name: z.string().min(1, "Name is required"),
+        img: z.instanceof(File, "Image is required"),
+      });
 
-    try {
-      if (!(img instanceof File)) {
-        throw new Error("Invalid image file");
-      }
-
-      const formData = new FormData();
-      formData.append("name", catName);
-      formData.append("file", img);
-
-      const data = {
-        name: catName,
-        img: img,
-      };
-
-      CategorySchema.parse(data);
-      const response = await axios.post(
-        "http://127.0.0.1:8000/category",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
+      if (typeof window !== 'undefined') {
+      try {
+        if (img && !(img instanceof File)) {
+          throw new Error("Invalid image file");
         }
-      );
 
-      if (response.status === 200) {
-        toast.success("Category added successfully");
-        setFormVisible(false);
-        fetchCategories();
-      }
-    } catch (error) {
-      console.error(error);
-      if (error instanceof z.ZodError) {
-        toast.error("Validation error");
-      } else if (error.response) {
-        if (error.response.status === 422) {
-          toast.error("Failed to add category. Unprocessable Entity");
-          console.error("Response data:", error.response.data);
+        const formData = new FormData();
+        formData.append("name", catName);
+        formData.append("file", img);
+
+        const data = {
+          name: catName,
+          img: img,
+        };
+
+        CategorySchema.parse(data);
+        const response = await axios.post(
+          "http://127.0.0.1:8000/category",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success("Category added successfully");
+          setFormVisible(false);
+          fetchCategories();
         }
-      } else {
-        toast.error("Network error.");
+      } catch (error) {
+        console.error(error);
+        if (error instanceof z.ZodError) {
+          toast.error("Validation error");
+        } else if (error.response) {
+          if (error.response.status === 422) {
+            toast.error("Failed to add category. Unprocessable Entity");
+            console.error("Response data:", error.response.data);
+          }
+        } else {
+          toast.error("Network error.");
+        }
       }
     }
+  }
   };
 
   const handleUpdateClick = (category) => {
-    setUpdateCategory(category);
-    setCatName(category.name);
-    setImg(null);
+    if (typeof window !== "undefined") {
+      setUpdateCategory(category);
+      setCatName(category.name);
+      setImg(null);
+    }
   };
 
   const handleUpdateUserClick = (user) => {
-    setUpdateUser(user);
-    setUserName(user.name);
-    setUserEmail(user.email);
-    setUserPhoneNumber(user.PhoneNumber);
-    setUserAddress(user.Address);
-    setUserGender(user.Gender);
-    setUserImg(null);
+    if (typeof window !== "undefined") {
+      setUpdateUser(user);
+      setUserName(user.name);
+      setUserEmail(user.email);
+      setUserPhoneNumber(user.PhoneNumber);
+      setUserAddress(user.Address);
+      setUserGender(user.Gender);
+      setUserImg(null);
+    }
   };
 
   const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    const categorySchema = z.object({
-      name: z.string().min(1, "Name is Required"),
-      img: z.instanceof(File, "Image is Required"),
-    });
-    try {
-      if (img && !(img instanceof File)) {
-        throw new Error("Invalid Image");
-      }
-      const formData = new FormData();
-      formData.append("name", catName);
-      if (img) formData.append("file", img);
-      const data = {
-        name: catName,
-        img: img,
-      };
-
-      categorySchema.parse(data);
-
-      const response = await axios.put(
-        `http://127.0.0.1:8000/category_update/${updateCategory.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
+    if (typeof window !== "undefined") {
+      e.preventDefault();
+      const categorySchema = z.object({
+        name: z.string().min(1, "Name is Required"),
+        img: z.instanceof(File, "Image is Required"),
+      });
+      try {
+        if (img && !(img instanceof File)) {
+          throw new Error("Invalid Image");
         }
-      );
-      if (response.status === 200) {
-        toast.success("Category Update SuccessFully");
-        setUpdateCategory(null);
-        fetchCategories();
-      }
-    } catch (error) {
-      console.error(error);
-      if (error instanceof z.ZodError) {
-        toast.error("Validation Error");
-      } else if (error.response) {
-        if (error.response.status === 422) {
-          toast.error("Failed to Update Category Unprocessable Entity");
+        const formData = new FormData();
+        formData.append("name", catName);
+        if (img) formData.append("file", img);
+        const data = {
+          name: catName,
+          img: img,
+        };
+
+        categorySchema.parse(data);
+
+        const response = await axios.put(
+          `http://127.0.0.1:8000/category_update/${updateCategory.id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success("Category Update SuccessFully");
+          setUpdateCategory(null);
+          fetchCategories();
         }
-      } else {
-        toast.error("Network Error");
+      } catch (error) {
+        console.error(error);
+        if (error instanceof z.ZodError) {
+          toast.error("Validation Error");
+        } else if (error.response) {
+          if (error.response.status === 422) {
+            toast.error("Failed to Update Category Unprocessable Entity");
+          }
+        } else {
+          toast.error("Network Error");
+        }
       }
     }
+  }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure to delete this Category")) return;
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(
-        `http://127.0.0.1:8000/delete_category/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setCategory(
-        category.filter((cat) => {
-          cat.id !== id;
-        })
-      );
-
-      if (response.status === 200) {
-        toast.success("Category Delete SuccessFuly");
-        showCategory();
-      } else {
-        toast.error(
-          "Unauthorized: You do not have permission to delete this product."
+    if (typeof window !== "undefined") {
+      if (!window.confirm("Are you sure to delete this Category")) return;
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+          `http://127.0.0.1:8000/delete_category/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+        setCategory(
+          category.filter((cat) => {
+            cat.id !== id;
+          })
+        );
+
+        if (response.status === 200) {
+          toast.success("Category Delete SuccessFuly");
+          showCategory();
+        } else {
+          toast.error(
+            "Unauthorized: You do not have permission to delete this product."
+          );
+        }
+      } catch (error) {
+        toast.error("Error in Deleting Categories");
+        console.log(error);
       }
-    } catch (error) {
-      toast.error("Error in Deleting Categories");
-      console.log(error);
-    }
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      const response = await axios.put(
-        `http://127.0.0.1:8003/orders_status/${orderId}`,
-        { status: newStatus },
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    if (typeof window !== "undefined") {
+      try {
+        const response = await axios.put(
+          `http://127.0.0.1:8003/orders_status/${orderId}`,
+          { status: newStatus },
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      if (response.status == 200) {
-        toast.success("Order status updated successfully");
-        window.location.reload()
-        // Update the local state or refetch orders if needed
-      } else {
-        toast.error("Failed to update order status");
+        if (response.status == 200) {
+          toast.success("Order status updated successfully");
+          window.location.reload();
+          // Update the local state or refetch orders if needed
+        } else {
+          toast.error("Failed to update order status");
+        }
+      } catch (error) {
+        toast.error("Error updating order status");
+        console.error(error.message);
+        console.log(error);
       }
-    } catch (error) {
-      toast.error("Error updating order status");
-      console.error(error.message);
-      console.log(error);
-    };
+    }
   };
 
-  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
+  const totalQuantity = () => {
+    if (typeof window !== "undefined") {
+      cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    }
+  };
   return (
     <>
-      <NavBar
-      quantity={totalQuantity}
-      />
+      <NavBar quantity={totalQuantity} />
       <div className="flex">
         <Sidebar
           isOpen={isSidebarOpen}
@@ -502,7 +545,9 @@ const Page = () => {
                     key={product.id}
                     className="border border-gray-300 rounded-lg shadow-lg p-4"
                   >
-                    <img
+                    <Image
+                      height={80}
+                      width={60}
                       className="mx-auto rounded-full h-24 w-24 mb-4"
                       src={product.imgUrl}
                       alt={product.name}
@@ -613,7 +658,9 @@ const Page = () => {
                           </form>
                         ) : (
                           <div className="border border-gray-300 rounded-lg shadow-lg p-4">
-                            <img
+                            <Image
+                              width={60}
+                              height={50}
                               className="mx-auto rounded-full h-24 w-24 mb-4"
                               src={cat.imgUrl}
                               alt={cat.name}
@@ -702,7 +749,7 @@ const Page = () => {
             )}
 
             {showOrders && (
-              <div className="grid grid-cols-1 gap-4 p-4" >
+              <div className="grid grid-cols-1 gap-4 p-4">
                 {(() => {
                   const filteredOrders = id
                     ? { [id]: groupedOrders[id] }
@@ -909,7 +956,9 @@ const Page = () => {
                                 </form>
                               ) : (
                                 <div className="border border-gray-300 rounded-lg shadow-lg p-4">
-                                  <img
+                                  <Image
+                                    height={50}
+                                    width={80}
                                     className="mx-auto rounded-full h-24 w-24 mb-4"
                                     src={user.imgUrl}
                                     alt={user.name}
@@ -960,7 +1009,9 @@ const Page = () => {
                             key={user.id}
                             className="border border-gray-300 rounded-lg shadow-lg p-4"
                           >
-                            <img
+                            <Image
+                              height={50}
+                              width={80}
                               src={user.imgUrl}
                               alt={user.name}
                               className="mx-auto rounded-full h-24 w-24 mb-4"

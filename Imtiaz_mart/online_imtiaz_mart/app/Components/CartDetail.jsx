@@ -17,63 +17,74 @@ const CartDetail = ({
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
 
   useEffect(() => {
-    setIsModalOpen(isOpen);
+    if (typeof window !== 'undefined') {
+      setIsModalOpen(isOpen);
+    }
   }, [isOpen]);
 
   useEffect(() => {
-    setCartItems(carts);
+    if (typeof window !== 'undefined') {
+      setCartItems(carts);
+    }
   }, [carts]);
 
   useEffect(() => {
-    if (!cartItems || cartItems.length === 0) {
-      closeModal();
+    if (typeof window !== 'undefined') {
+      if (!cartItems || cartItems.length === 0) {
+        closeModal();
+      }
     }
   }, [cartItems, closeModal]);
 
   const totalBill = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    if (typeof window !== 'undefined') {
+      return cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+    }
+    return 0;
   };
 
   const updateProductQuantity = (id, change) => {
-    const product = products.find((p) => p.id === id);
-    if (!product) return;
+    if (typeof window !== 'undefined') {
+      const product = products.find((p) => p.id === id);
+      if (!product) return;
 
-    const productQuantity = product.quantity;
+      const productQuantity = product.quantity;
 
-    const updatedCart = cartItems
-      .map((item) => {
-        if (item.id === id) {
-          const newQuantity = item.quantity + change;
-          if (
-            newQuantity >= productQuantity ||
-            newQuantity <= productQuantity
-          ) {
-            return { ...item, quantity: newQuantity };
-          } else if (newQuantity <= 0) {
-            return null;
+      const updatedCart = cartItems
+        .map((item) => {
+          if (item.id === id) {
+            const newQuantity = item.quantity + change;
+            if (
+              newQuantity >= productQuantity ||
+              newQuantity <= productQuantity
+            ) {
+              return { ...item, quantity: newQuantity };
+            } else if (newQuantity <= 0) {
+              return null;
+            }
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0);
+
+      const updatedProducts = products.map((p) => {
+        if (p.id === id && p.quantity >= 0) {
+          const newProductQuantity = p.quantity - change;
+          if (productQuantity <= productQuantity) {
+            return { ...p, quantity: newProductQuantity };
           }
         }
-        return item;
-      })
-      .filter((item) => item.quantity > 0);
+        return p;
+      });
 
-    const updatedProducts = products.map((p) => {
-      if (p.id === id && p.quantity >= 0) {
-        const newProductQuantity = p.quantity - change;
-        if (productQuantity <= productQuantity) {
-          return { ...p, quantity: newProductQuantity };
-        }
-      }
-      return p;
-    });
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
 
-    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-    setCart(updatedCart);
-    setProducts(updatedProducts);
+      setCart(updatedCart);
+      setProducts(updatedProducts);
+    }
   };
 
   return isModalOpen ? (

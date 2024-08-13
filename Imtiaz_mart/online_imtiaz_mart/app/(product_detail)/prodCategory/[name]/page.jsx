@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
 
 const CategoryProduct = () => {
   const params = useParams();
@@ -18,78 +19,93 @@ const CategoryProduct = () => {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/products/");
-        if (response.status === 200) {
-          setProducts(response.data);
+    if (typeof window !== "undefined") {
+      const fetchProduct = async () => {
+        try {
+          const response = await axios.get("http://127.0.0.1:8000/products/");
+          if (response.status === 200) {
+            setProducts(response.data);
+          }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
+      };
+
+      fetchProduct();
+
+      const storedCart = localStorage.getItem("cart");
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
       }
-    };
-
-    fetchProduct();
-
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
     }
   }, []);
 
   const handleViewProduct = (id) => {
-    router.push(`/productShow/${id}`);
+    if (typeof window !== "undefined") {
+      router.push(`/productShow/${id}`);
+    }
   };
 
   useEffect(() => {
-    const result = products.filter((prod) =>
-      prod.name.toLowerCase().includes(searchProd.toLowerCase())
-    );
-    setFilteredProducts(result);
+    if (typeof window !== "undefined") {
+      const result = products.filter((prod) =>
+        prod.name.toLowerCase().includes(searchProd.toLowerCase())
+      );
+      setFilteredProducts(result);
+    }
   }, [searchProd, products]);
 
   const handleAddToCart = (product) => {
-    setCart((prevCart) => {
-      const existingProduct = prevCart.find((item) => item.id === product.id);
-      const updatedCart = existingProduct
-        ? prevCart.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        : [...prevCart, { ...product, quantity: 1 }];
+    if (typeof window !== "undefined") {
+      setCart((prevCart) => {
+        const existingProduct = prevCart.find((item) => item.id === product.id);
+        const updatedCart = existingProduct
+          ? prevCart.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            )
+          : [...prevCart, { ...product, quantity: 1 }];
 
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-      return updatedCart;
-    });
+        window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+        return updatedCart;
+      });
 
-    setProducts((prevProducts) =>
-      prevProducts.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
-      )
-    );
+      setProducts((prevProducts) =>
+        prevProducts.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      );
 
-    toast.success("Item added to your cart");
+      toast.success("Item added to your cart");
+    }
   };
 
-  
   const handleCartDelete = (quantityForDel, id) => {
-    const cartItem = cart.find((cart) => cart.id === id);
-    if (!cartItem) return;
+    if (typeof window !== "undefined") {
+      const cartItem = cart.find((cart) => cart.id === id);
+      if (!cartItem) return;
 
-    const updatedProducts = products.map((prod) =>
-      prod.id === id
-        ? { ...prod, quantity: prod.quantity + quantityForDel }
-        : prod
-    );
+      const updatedProducts = products.map((prod) =>
+        prod.id === id
+          ? { ...prod, quantity: prod.quantity + quantityForDel }
+          : prod
+      );
 
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-    setProducts(updatedProducts);
-    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+      const updatedCart = cart.filter((item) => item.id !== id);
+      setCart(updatedCart);
+      setProducts(updatedProducts);
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
   };
 
-  const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalQuantity = () => {
+    if (typeof window !== "undefined") {
+    cart.reduce((acc, item) => acc + item.quantity, 0);
+  };
+}
 
   return (
     <>
@@ -111,7 +127,9 @@ const CategoryProduct = () => {
               key={product.id}
               className="border border-gray-300 rounded-lg shadow-lg p-4"
             >
-              <img
+              <Image
+                height={80}
+                width={60}
                 src={product.imgUrl}
                 alt={product.name}
                 className="mx-auto rounded-full h-24 w-24 mb-4"

@@ -2,7 +2,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCartShopping,
+  faBars,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CartDetail from "./CartDetail";
@@ -25,37 +29,51 @@ const NavBar = ({
   const [search, setSearch] = useState(searchProd || "");
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("id");
-    localStorage.removeItem("role");
-    setToken(null);
-    router.push("/");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
+      localStorage.removeItem("role");
+      setToken(null);
+      router.push("/");
+    }
   };
 
   const openModalCart = () => {
-    setIsOpen(true);
+    if (typeof window !== "undefined") {
+      setIsOpen(true);
+    }
   };
 
   const closeModalCart = () => {
-    setIsOpen(false);
+    if (typeof window !== "undefined") {
+      setIsOpen(false);
+    }
   };
 
   const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    setSearchProd(e.target.value);
+    if (typeof window !== "undefined") {
+      setSearch(e.target.value);
+      setSearchProd(e.target.value);
+    }
   };
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    if (typeof window !== "undefined") {
+      e.preventDefault();
+    }
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    if (typeof window !== "undefined") {
+      setIsMenuOpen(!isMenuOpen);
+    }
   };
 
   return (
@@ -66,7 +84,10 @@ const NavBar = ({
             <Image src="/img/logo.jpeg" alt="Logo" width={56} height={56} />
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-grow">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden md:flex flex-grow"
+          >
             <input
               type="text"
               placeholder="Search"
@@ -79,9 +100,16 @@ const NavBar = ({
 
         <div className="flex items-center space-x-5">
           <button onClick={toggleMenu} className="md:hidden text-white">
-            <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="text-2xl" />
+            <FontAwesomeIcon
+              icon={isMenuOpen ? faTimes : faBars}
+              className="text-2xl"
+            />
           </button>
-          <div className={`flex-col ${isMenuOpen ? "flex" : "hidden"} md:flex md:flex-row space-y-4 md:space-y-0 md:space-x-5`}>
+          <div
+            className={`flex-col ${
+              isMenuOpen ? "flex" : "hidden"
+            } md:flex md:flex-row space-y-4 md:space-y-0 md:space-x-5`}
+          >
             <Button
               variant="outline"
               className="px-4 py-2 hover:bg-white hover:text-slate-600"

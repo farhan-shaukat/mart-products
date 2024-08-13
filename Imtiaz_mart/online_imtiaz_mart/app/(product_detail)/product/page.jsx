@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button } from "@/components/ui/button";
 import NavBar from "@/app/Components/Navbar";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -17,98 +18,118 @@ const Product = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/products/");
-        if (response.status === 200) {
-          setProducts(response.data);
+    if (typeof window !== "undefined") {
+      const fetchProduct = async () => {
+        try {
+          const response = await axios.get("http://127.0.0.1:8000/products/");
+          if (response.status === 200) {
+            setProducts(response.data);
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error("Error fetching products");
         }
-      } catch (error) {
-        console.error(error);
-        toast.error("Error fetching products");
+      };
+      fetchProduct();
+
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);
+
+      const storedCart = localStorage.getItem("cart");
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
       }
-    };
-
-    fetchProduct();
-
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
     }
   }, []);
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const resposne = await axios.get("http://127.0.0.1:8000/get_category");
-        if (resposne.status === 200) {
-          setCategory(resposne.data);
-        }
-      } catch (error) {}
-    };
-    fetchCategory();
+    if (typeof window !== "undefined") {
+      const fetchCategory = async () => {
+        try {
+          const resposne = await axios.get(
+            "http://127.0.0.1:8000/get_category"
+          );
+          if (resposne.status === 200) {
+            setCategory(resposne.data);
+          }
+        } catch (error) {}
+      };
+      fetchCategory();
+    }
   }, []);
 
   useEffect(() => {
-    const result = products.filter((prod) =>
-      prod.name.toLowerCase().includes(searchProd.toLowerCase())
-    );
-    setFilteredProducts(result);
+    if (typeof window !== "undefined") {
+      const result = products.filter((prod) =>
+        prod.name.toLowerCase().includes(searchProd.toLowerCase())
+      );
+      setFilteredProducts(result);
+    }
   }, [searchProd, products]);
 
-  
   const handleAddToCart = (product) => {
-    setCart((prevCart) => {
-      const existingProduct = prevCart.find((item) => item.id === product.id);
-      const updatedCart = existingProduct
-        ? prevCart.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        : [...prevCart, { ...product, quantity: 1 }];
+    if (typeof window !== "undefined") {
+      setCart((prevCart) => {
+        const existingProduct = prevCart.find((item) => item.id === product.id);
+        const updatedCart = existingProduct
+          ? prevCart.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            )
+          : [...prevCart, { ...product, quantity: 1 }];
 
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-      return updatedCart;
-    });
+        window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+        return updatedCart;
+      });
 
-    setProducts((prevProducts) =>
-      prevProducts.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
-      )
-    );
+      setProducts((prevProducts) =>
+        prevProducts.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      );
 
-    toast.success("Item added to your cart");
+      toast.success("Item added to your cart");
+    }
   };
 
   const handleCartDelete = (quantityForDel, id) => {
-    const cartItem = cart.find((cart) => cart.id === id);
-    if (!cartItem) return;
+    if (typeof window !== "undefined") {
+      const cartItem = cart.find((cart) => cart.id === id);
+      if (!cartItem) return;
 
-    const updatedProducts = products.map((prod) =>
-      prod.id === id
-        ? { ...prod, quantity: prod.quantity + quantityForDel }
-        : prod
-    );
+      const updatedProducts = products.map((prod) =>
+        prod.id === id
+          ? { ...prod, quantity: prod.quantity + quantityForDel }
+          : prod
+      );
 
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-    setProducts(updatedProducts);
-    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+      const updatedCart = cart.filter((item) => item.id !== id);
+      setCart(updatedCart);
+      setProducts(updatedProducts);
+      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
   };
 
   const handleViewProduct = (id) => {
-    router.push(`/productShow/${id}`);
+    if (typeof window !== "undefined") {
+      router.push(`/productShow/${id}`);
+    }
   };
 
   const handleCategoryView = (name) => {
-    router.push(`/prodCategory/${name}`);
+    if (typeof window !== "undefined") {
+      router.push(`/prodCategory/${name}`);
+    }
   };
 
-  const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalQuantity = () => {
+    if (typeof window !== "undefined") {
+      cart.reduce((acc, item) => acc + item.quantity, 0);
+    }
+  };
 
   return (
     <div>
@@ -123,18 +144,20 @@ const Product = () => {
         setSearchProd={setSearchProd}
       />
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 m-4 p-3">
-  {category.map((cat) => (
-    <div key={cat.id} className="flex flex-col items-center text-center">
-      <img
-        className="rounded-full h-20 w-20 mb-2 transition-transform duration-200 hover:scale-105"
-        src={cat.imgUrl}
-        alt={cat.name}
-        onClick={() => handleCategoryView(cat.name)}
-      />
-      <h2 className="text-sm sm:text-base font-medium">{cat.name}</h2>
-    </div>
-  ))}
-</div>
+        {category.map((cat) => (
+          <div key={cat.id} className="flex flex-col items-center text-center">
+            <Image
+              height={55}
+              width={35}
+              className="rounded-full h-20 w-20 mb-2 transition-transform duration-200 hover:scale-105"
+              src={cat.imgUrl}
+              alt={cat.name}
+              onClick={() => handleCategoryView(cat.name)}
+            />
+            <h2 className="text-sm sm:text-base font-medium">{cat.name}</h2>
+          </div>
+        ))}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {filteredProducts.map((product) => (
@@ -142,8 +165,10 @@ const Product = () => {
             key={product.id}
             className="border border-gray-300 rounded-lg shadow-lg p-4"
           >
-            <img
-              className="mx-auto rounded-full h-24 w-24 mb-4"
+            <Image
+              height={70}
+              width={55}
+              className="mx-auto mb-4 rounded-full h-20 w-20 transition-transform duration-200 hover:scale-105"
               src={product.imgUrl}
               alt={product.name}
             />
@@ -156,16 +181,16 @@ const Product = () => {
                 </p>
               )}
               {product.quantity > 0 ? (
-                  <div className="m-5 space-y-5">
-                    <Button
-                      variant="outline"
-                      className="m-3"
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </div>
-                ): (
+                <div className="m-5 space-y-5">
+                  <Button
+                    variant="outline"
+                    className="m-3"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
+              ) : (
                 <p className="text-red-600 font-semibold">Out of Stock</p>
               )}
               <Button

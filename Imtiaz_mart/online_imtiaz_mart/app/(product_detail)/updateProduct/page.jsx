@@ -35,87 +35,94 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      productName: product.name || "",
-      productDescription: product.description || "",
-      price: product.price.toString() || "",
-      quantity: product.quantity.toString() || "",
-      prodCategory: product.categoryName || "",
+      productName: product?.name || "",
+      productDescription: product?.description || "",
+      price: product?.price.toString() || "",
+      quantity: product?.quantity.toString() || "",
+      prodCategory: product?.categoryName || "",
     },
   });
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/get_category");
-        if (response.status === 200) {
-          setCategories(response.data);
+    if (typeof window !== "undefined") {
+      const fetchCategories = async () => {
+        try {
+          const response = await axios.get(
+            "http://127.0.0.1:8000/get_category"
+          );
+          if (response.status === 200) {
+            setCategories(response.data);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error("Error in Fetching Categories");
         }
-      } catch (error) {
-        console.log(error);
-        toast.error("Error in Fetching Categories");
-      }
-    };
-    fetchCategories();
+      };
+      fetchCategories();
+    }
   }, []);
 
   const onSubmit = async (data) => {
-    const price = parseFloat(data.price);
-    const quantity = parseInt(data.quantity, 10);
-    const categoryName = data.prodCategory; // Send category name
+    if (typeof window !== "undefined") {
+      const price = parseFloat(data.price);
+      const quantity = parseInt(data.quantity, 10);
+      const categoryName = data.prodCategory; // Send category name
 
-    if (isNaN(price) || isNaN(quantity)) {
-      toast.error("Price and quantity must be valid numbers.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", data.productName);
-    formData.append("description", data.productDescription);
-    formData.append("price", price);
-    formData.append("quantity", quantity);
-    formData.append("categoryName", categoryName); 
-    if (image) formData.append("file", image);
-
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
-        `http://localhost:8000/products_update/${product.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success("Product updated successfully!");
-        closeModal();
-        window.location.reload();
-        router.refresh()
-      } else {
-        toast.error("Unexpected error occurred.");
+      if (isNaN(price) || isNaN(quantity)) {
+        toast.error("Price and quantity must be valid numbers.");
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      if (error.response) {
-        console.error(error.response.data);
-        if (error.response.status === 401) {
-          toast.error(
-            "Unauthorized: You do not have permission to update this product."
-          );
-        } else if (error.response.status === 422) {
-          toast.error(
-            `Failed to update product. Unprocessable Entity: ${error.response.data.detail}`
-          );
-        }
-      } else {
-        toast.error("Network error.");
+
+      if (typeof window !== "undefined") {
+        const formData = new FormData();
+        formData.append("name", data.productName);
+        formData.append("description", data.productDescription);
+        formData.append("price", price);
+        formData.append("quantity", quantity);
+        formData.append("categoryName", categoryName);
+        if (image) formData.append("file", image);
       }
-    } finally {
-      setLoading(false);
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+
+        const response = await axios.put(
+          `http://localhost:8000/products_update/${product.id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success("Product updated successfully!");
+          closeModal();
+          window.location.reload();
+          router.refresh();
+        } else {
+          toast.error("Unexpected error occurred.");
+        }
+      } catch (error) {
+        console.error(error);
+        if (error.response) {
+          console.error(error.response.data);
+          if (error.response.status === 401) {
+            toast.error(
+              "Unauthorized: You do not have permission to update this product."
+            );
+          } else if (error.response.status === 422) {
+            toast.error(
+              `Failed to update product. Unprocessable Entity: ${error.response.data.detail}`
+            );
+          }
+        } else {
+          toast.error("Network error.");
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -127,25 +134,33 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
         <h2 className="text-2xl font-bold mb-4">Update Product</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Product Name</label>
+            <label className="block text-gray-700 font-bold mb-2">
+              Product Name
+            </label>
             <input
               type="text"
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productName")}
             />
             {errors.productName && (
-              <p className="text-red-600 text-sm">{errors.productName.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.productName.message}
+              </p>
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Product Description</label>
+            <label className="block text-gray-700 font-bold mb-2">
+              Product Description
+            </label>
             <textarea
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productDescription")}
               rows={3}
             />
             {errors.productDescription && (
-              <p className="text-red-600 text-sm">{errors.productDescription.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.productDescription.message}
+              </p>
             )}
           </div>
           <div className="mb-4">
@@ -161,7 +176,9 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Quantity</label>
+            <label className="block text-gray-700 font-bold mb-2">
+              Quantity
+            </label>
             <input
               type="number"
               className="border border-gray-300 p-2 rounded w-full"
@@ -172,7 +189,9 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
             )}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">Categories</label>
+            <label className="block text-gray-700 font-bold mb-2">
+              Categories
+            </label>
             <select
               className="border border-gray-300 p-2 rounded w-full"
               {...register("prodCategory")}
@@ -185,7 +204,9 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
               ))}
             </select>
             {errors.prodCategory && (
-              <p className="text-red-600 text-sm">{errors.prodCategory.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.prodCategory.message}
+              </p>
             )}
           </div>
           <div className="mb-4">
@@ -204,7 +225,9 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
                 />
               )}
             />
-            {!image && <p className="text-red-600 text-sm">Please upload an image.</p>}
+            {!image && (
+              <p className="text-red-600 text-sm">Please upload an image.</p>
+            )}
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
@@ -226,7 +249,6 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
       </div>
     </div>
   );
-  
-};  
+};
 
 export default UpdateProduct;
