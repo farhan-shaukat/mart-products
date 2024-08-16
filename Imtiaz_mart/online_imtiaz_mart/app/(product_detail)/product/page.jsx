@@ -125,11 +125,7 @@ const Product = () => {
     }
   };
 
-  const totalQuantity = () => {
-    if (typeof window !== "undefined") {
-      cart.reduce((acc, item) => acc + item.quantity, 0);
-    }
-  };
+  const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <div>

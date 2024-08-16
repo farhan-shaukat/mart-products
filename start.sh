@@ -7,4 +7,4 @@ uvicorn order.main:app --host 0.0.0.0 --port 8002 &
 uvicorn user.main:app --host 0.0.0.0 --port 8003 &
 
 # Start Next.js app
-npm run start --prefix /app/frontend
+npm --prefix /app/frontend start 

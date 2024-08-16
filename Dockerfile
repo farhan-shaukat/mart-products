@@ -2,42 +2,49 @@
 FROM node:18 AS build
 
 # Set the Working Directory
-WORKDIR /app
+WORKDIR /app/frontend
 
 # Copy the package.json and package-lock.json files
-COPY ./Imtiaz_mart/online_imtiaz_mart/package*.json ./
+COPY ./Imtiaz_mart/online_imtiaz_mart/package.json /app/frontend
 
 # Install Dependencies
+WORKDIR /app/frontend
 RUN npm install
 
 # Copy the rest of the Next.js app code
-COPY ./Imtiaz_mart/online_imtiaz_mart ./
+COPY ./Imtiaz_mart/online_imtiaz_mart /app/frontend
 
 # Build the Next.js app
 RUN npm run build
 
-
 # Build the FastAPI
-FROM python:3.11 AS fastapi
+FROM python:3.12 AS fastapi
 
 # Set the Working Directory
-WORKDIR /app
+WORKDIR /backend
+
 # Install Poetry
 RUN pip install poetry
 
 # Copy and Install dependencies for each FastAPI directory
-COPY ./auth/pyproject.toml ./auth/
-RUN poetry install --no-root --cwd ./auth
+COPY ./auth/pyproject.toml /backend/auth/
+WORKDIR /backend/auth
+RUN poetry install --no-root
 
-COPY ./product/pyproject.toml .product/
-RUN poetry install --no-root --cwd .product
+COPY ./product/pyproject.toml /backend/product/
+WORKDIR /backend/product
+RUN poetry install --no-root
 
-COPY ./user/pyproject.toml .user/
-RUN poetry install --no-root --cwd .user
+COPY ./user/pyproject.toml /backend/user/
+WORKDIR /backend/user
+RUN poetry install --no-root
 
-COPY ./order/pyproject.toml .order/
-RUN poetry install --no-root --cwd .order
+COPY ./order/pyproject.toml /backend/order/
+WORKDIR /backend/order
+RUN poetry install --no-root
 
+# Reset Working Directory
+WORKDIR /backend
 
 # Copy the FastAPI application code after installing dependencies
 COPY ./auth ./auth/
@@ -46,20 +53,27 @@ COPY ./user ./user/
 COPY ./order ./order/
 
 # Final Stage
-FROM python:3.11
+FROM python:3.12-alpine
 
-# Set Working Directory
-WORKDIR /CompanyProject/Project/mart-products
 
-# Copy the FastAPI apps from the previous stage
-COPY --from=fastapi /app/auth ./auth
-COPY --from=fastapi /app/product ./product
-COPY --from=fastapi /app/order ./order
-COPY --from=fastapi /app/user ./user
+# Install Node.js and npm in the Alpine image
+RUN apk add --no-cache nodejs npm
+
+# Set the Working Directory for Next.js
+WORKDIR /app/frontend
 
 # Copy the Next.js build output from the previous stage
-COPY --from=build /app/.next /app/frontend/.next
-COPY --from=build /app/public /app/frontend/public
+COPY --from=build /app/frontend/.next ./.next
+COPY --from=build /app/frontend/public ./public
+
+# Set the Working Directory for FastAPI
+WORKDIR /backend
+
+# Copy the FastAPI apps from the previous stage
+COPY --from=fastapi /backend/auth ./auth
+COPY --from=fastapi /backend/product ./product
+COPY --from=fastapi /backend/order ./order
+COPY --from=fastapi /backend/user ./user
 
 # Install Uvicorn Server
 RUN pip install uvicorn
