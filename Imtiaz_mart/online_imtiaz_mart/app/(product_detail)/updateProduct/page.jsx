@@ -63,7 +63,6 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
   }, []);
 
   const onSubmit = async (data) => {
-    if (typeof window !== "undefined") {
       const price = parseFloat(data.price);
       const quantity = parseInt(data.quantity, 10);
       const categoryName = data.prodCategory; // Send category name
@@ -73,7 +72,6 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
         return;
       }
 
-      if (typeof window !== "undefined") {
         const formData = new FormData();
         formData.append("name", data.productName);
         formData.append("description", data.productDescription);
@@ -81,7 +79,6 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
         formData.append("quantity", quantity);
         formData.append("categoryName", categoryName);
         if (image) formData.append("file", image);
-      }
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
@@ -124,7 +121,6 @@ const UpdateProduct = ({ product, isOpen, closeModal }) => {
         setLoading(false);
       }
     }
-  };
 
   if (!isOpen) return null;
   return (

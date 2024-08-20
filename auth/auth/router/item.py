@@ -35,39 +35,21 @@ async def verify_user(username: str) -> Dict[str, str]:
         
         return {"username": user_name, "password": password}
     
-# @router.post("/register", response_model=User)
-# async def register_user(
-#     username: str = Form(...),
-#     password: str = Form(...),
-#     session: Session = Depends(get_session)
-# ):
-#     existing_user = session.exec(select(User).where(User.username == username)).first()
-#     if existing_user:
-#         raise HTTPException(status_code=400, detail="Username already registered")
 
-#     hashed_password = get_password_hash(password)
-#     user_data = User(
-#         username=username,
-#         password=hashed_password
-#     )
-
-#     session.add(user_data)
-#     session.commit()
-#     session.refresh(user_data)
+@router.post("/token")
+async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
+    user_data = await verify_user(user.username) 
+    print(user_data)
     
-#     return user_data
+    if user.username != user_data['username'] or not verify_password( user.password ,user_data['password']):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail = "Invalid username or password",
+            headers = {"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
-# @router.post("/token")
-# async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):
-#     db_user = db.query(User).filter(User.username == user.username).first()
-#     if not db_user or not verify_password(user.password, db_user.password):
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Invalid username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     access_token = create_access_token(data={"sub": user.username})
-#     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/user_token")
 async def userLogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_session)):

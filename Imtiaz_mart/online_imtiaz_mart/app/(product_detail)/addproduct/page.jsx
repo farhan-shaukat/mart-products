@@ -11,9 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 // Define the form schema using Zod
 const formSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required." }),
-  productDescription: z
-    .string()
-    .min(1, { message: "Product description is required." }),
+  productDescription: z.string().min(1, { message: "Product description is required." }),
   price: z.string().min(1, { message: "Price is required." }), // Accepting as string initially
   quantity: z.string().min(1, { message: "Quantity is required." }), // Accepting as string initially
   prodCategory: z.string().min(1, { message: "Category is required." }),
@@ -31,6 +29,7 @@ const Page = () => {
     handleSubmit,
     formState: { errors },
     control,
+    setValue
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,88 +43,77 @@ const Page = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      if (typeof window !== "undefined") {
-        try {
-          const response = await axios.get(
-            "http://127.0.0.1:8000/get_category"
-          );
-          if (response.status === 200) {
-            setCategories(response.data);
-          }
-        } catch (error) {
-          console.log(error);
-          toast.error("Error in Fetching Categories");
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/get_category");
+        if (response.status === 200) {
+          setCategories(response.data);
         }
+      } catch (error) {
+        console.error(error);
+        toast.error("Error in Fetching Categories");
       }
-      fetchCategories();
     };
+
+    fetchCategories();
   }, []);
 
   const onSubmit = async (data) => {
-    if (typeof window !== "undefined") {
-      if (!image) {
-        toast.error("Please upload an image.");
-        return;
-      }
+    if (!image) {
+      toast.error("Please upload an image.");
+      return;
+    }
 
-      const price = parseFloat(data.price);
-      const quantity = parseInt(data.quantity, 10);
-      const categoryName = data.prodCategory;
+    const price = parseFloat(data.price);
+    const quantity = parseInt(data.quantity, 10);
+    const categoryName = data.prodCategory;
 
-      if (isNaN(price) || isNaN(quantity)) {
-        toast.error("Price and quantity must be valid numbers.");
-        return;
-      }
+    if (isNaN(price) || isNaN(quantity)) {
+      toast.error("Price and quantity must be valid numbers.");
+      return;
+    }
 
-      if (typeof window !== "undefined") {
-        const formData = new FormData();
-        formData.append("name", data.productName);
-        formData.append("description", data.productDescription);
-        formData.append("price", price);
-        formData.append("quantity", quantity);
-        formData.append("categoryName", categoryName);
-        formData.append("file", image);
-      }
+    const formData = new FormData();
+    formData.append("name", data.productName);
+    formData.append("description", data.productDescription);
+    formData.append("price", price.toString()); // Append price as string
+    formData.append("quantity", quantity.toString()); // Append quantity as string
+    formData.append("categoryName", categoryName);
+    formData.append("file", image);
 
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
 
-        const response = await axios.post(
-          "http://127.0.0.1:8000/products_create/",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.status === 200) {
-          toast.success("Product added successfully!");
-        } else {
-          toast.error("Unexpected error occurred.");
+      const response = await axios.post(
+        "http://127.0.0.1:8000/products_create/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      if (response.status === 200) {
+        toast.success("Product added successfully!");
         router.push("/dashboard");
-      } catch (error) {
-        console.error(error);
-        if (error.response) {
-          console.error(error.response.data);
-          if (error.response.status === 401) {
-            toast.error(
-              "Unauthorized: You do not have permission to add this product."
-            );
-          } else if (error.response.status === 422) {
-            toast.error(
-              `Failed to add product. Unprocessable Entity: ${error.response.data.detail}`
-            );
-          }
-        } else {
-          toast.error("Network error.");
-        }
-      } finally {
-        setLoading(false);
+      } else {
+        toast.error("Unexpected error occurred.");
       }
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        console.error(error.response.data);
+        if (error.response.status === 401) {
+          toast.error("Unauthorized: You do not have permission to add this product.");
+        } else if (error.response.status === 422) {
+          toast.error(`Failed to add product. Unprocessable Entity: ${error.response.data.detail}`);
+        }
+      } else {
+        toast.error("Network error.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -136,32 +124,22 @@ const Page = () => {
         <h2 className="text-2xl font-bold mb-4">Add New Product</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Product Name
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Product Name</label>
             <input
               type="text"
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productName")}
             />
-            {errors.productName && (
-              <p className="text-red-600">{errors.productName.message}</p>
-            )}
+            {errors.productName && <p className="text-red-600">{errors.productName.message}</p>}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Product Description
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Product Description</label>
             <textarea
               className="border border-gray-300 p-2 rounded w-full"
               {...register("productDescription")}
               rows={3}
             />
-            {errors.productDescription && (
-              <p className="text-red-600">
-                {errors.productDescription.message}
-              </p>
-            )}
+            {errors.productDescription && <p className="text-red-600">{errors.productDescription.message}</p>}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">Price</label>
@@ -171,27 +149,19 @@ const Page = () => {
               className="border border-gray-300 p-2 rounded w-full"
               {...register("price")}
             />
-            {errors.price && (
-              <p className="text-red-600">{errors.price.message}</p>
-            )}
+            {errors.price && <p className="text-red-600">{errors.price.message}</p>}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Quantity
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Quantity</label>
             <input
               type="number"
               className="border border-gray-300 p-2 rounded w-full"
               {...register("quantity")}
             />
-            {errors.quantity && (
-              <p className="text-red-600">{errors.quantity.message}</p>
-            )}
+            {errors.quantity && <p className="text-red-600">{errors.quantity.message}</p>}
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Categories
-            </label>
+            <label className="block text-gray-700 font-bold mb-2">Categories</label>
             <select
               className="border border-gray-300 p-2 rounded w-full"
               {...register("prodCategory")}
@@ -203,9 +173,7 @@ const Page = () => {
                 </option>
               ))}
             </select>
-            {errors.prodCategory && (
-              <p className="text-red-600">{errors.prodCategory.message}</p>
-            )}
+            {errors.prodCategory && <p className="text-red-600">{errors.prodCategory.message}</p>}
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 font-bold mb-2">Image</label>
@@ -217,8 +185,9 @@ const Page = () => {
                   type="file"
                   className="border border-gray-300 p-2 rounded w-full"
                   onChange={(e) => {
-                    onChange(e.target.files[0]);
-                    setImage(e.target.files[0]);
+                    const file = e.target.files[0];
+                    onChange(file);
+                    setImage(file);
                   }}
                 />
               )}

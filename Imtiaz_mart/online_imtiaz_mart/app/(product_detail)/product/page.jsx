@@ -3,10 +3,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button } from "@/components/ui/button";
-import NavBar from "@/app/Components/Navbar";
+import { Button } from "../../../components/ui/button";
+import NavBar from "../../Components/Navbar";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -142,7 +142,7 @@ const Product = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 m-4 p-3">
         {category.map((cat) => (
           <div key={cat.id} className="flex flex-col items-center text-center">
-            <Image
+            <img
               height={55}
               width={35}
               className="rounded-full h-20 w-20 mb-2 transition-transform duration-200 hover:scale-105"
@@ -161,7 +161,7 @@ const Product = () => {
             key={product.id}
             className="border border-gray-300 rounded-lg shadow-lg p-4"
           >
-            <Image
+            <img
               height={70}
               width={55}
               className="mx-auto mb-4 rounded-full h-20 w-20 transition-transform duration-200 hover:scale-105"

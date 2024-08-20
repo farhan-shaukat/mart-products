@@ -1,13 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import NavBar from "@/app/Components/Navbar";
+import { useParams, useRouter } from "next/navigation";
+import NavBar from "../../../Components/Navbar";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { Button } from "../../../../components/ui/button";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Image from "next/image";
 
 const CategoryProduct = () => {
   const params = useParams();
@@ -19,98 +17,86 @@ const CategoryProduct = () => {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const fetchProduct = async () => {
-        try {
-          const response = await axios.get("http://127.0.0.1:8000/products/");
-          if (response.status === 200) {
-            setProducts(response.data);
-          }
-        } catch (error) {
-          console.error(error);
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/products/");
+        if (response.status === 200) {
+          setProducts(response.data);
         }
-      };
-
-      fetchProduct();
-
-      const storedCart = localStorage.getItem("cart");
-      if (storedCart) {
-        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        console.error(error);
       }
+    };
+
+    fetchProduct();
+
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
     }
   }, []);
 
-  const handleViewProduct = (id) => {
-    if (typeof window !== "undefined") {
-      router.push(`/productShow/${id}`);
-    }
-  };
-
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const result = products.filter((prod) =>
-        prod.name.toLowerCase().includes(searchProd.toLowerCase())
-      );
-      setFilteredProducts(result);
-    }
+    const result = products.filter((prod) =>
+      prod.name.toLowerCase().includes(searchProd.toLowerCase())
+    );
+    setFilteredProducts(result);
   }, [searchProd, products]);
 
+  const handleViewProduct = (id) => {
+    router.push(`/productShow/${id}`);
+  };
+
   const handleAddToCart = (product) => {
-    if (typeof window !== "undefined") {
-      setCart((prevCart) => {
-        const existingProduct = prevCart.find((item) => item.id === product.id);
-        const updatedCart = existingProduct
-          ? prevCart.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            )
-          : [...prevCart, { ...product, quantity: 1 }];
+    setCart((prevCart) => {
+      const existingProduct = prevCart.find((item) => item.id === product.id);
+      const updatedCart = existingProduct
+        ? prevCart.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        : [...prevCart, { ...product, quantity: 1 }];
 
-        window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-        return updatedCart;
-      });
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      return updatedCart;
+    });
 
-      setProducts((prevProducts) =>
-        prevProducts.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
-      );
+    setProducts((prevProducts) =>
+      prevProducts.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
 
-      toast.success("Item added to your cart");
-    }
+    toast.success("Item added to your cart");
   };
 
   const handleCartDelete = (quantityForDel, id) => {
-    if (typeof window !== "undefined") {
-      const cartItem = cart.find((cart) => cart.id === id);
-      if (!cartItem) return;
+    const cartItem = cart.find((cart) => cart.id === id);
+    if (!cartItem) return;
 
-      const updatedProducts = products.map((prod) =>
-        prod.id === id
-          ? { ...prod, quantity: prod.quantity + quantityForDel }
-          : prod
-      );
+    const updatedProducts = products.map((prod) =>
+      prod.id === id
+        ? { ...prod, quantity: prod.quantity + quantityForDel }
+        : prod
+    );
 
-      const updatedCart = cart.filter((item) => item.id !== id);
-      setCart(updatedCart);
-      setProducts(updatedProducts);
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
+    const updatedCart = cart.filter((item) => item.id !== id);
+    setCart(updatedCart);
+    setProducts(updatedProducts);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   const totalQuantity = () => {
-    if (typeof window !== "undefined") {
-    cart.reduce((acc, item) => acc + item.quantity, 0);
+    return cart.reduce((acc, item) => acc + item.quantity, 0);
   };
-}
 
   return (
     <>
       <NavBar
-        quantity={totalQuantity}
+        quantity={totalQuantity()}
         carts={cart}
         products={filteredProducts}
         setProducts={setProducts}
@@ -127,7 +113,7 @@ const CategoryProduct = () => {
               key={product.id}
               className="border border-gray-300 rounded-lg shadow-lg p-4"
             >
-              <Image
+              <img
                 height={80}
                 width={60}
                 src={product.imgUrl}
@@ -140,15 +126,13 @@ const CategoryProduct = () => {
                   Rs {product.price}
                 </p>
                 {product.quantity > 0 ? (
-                  <div>
-                    <Button
-                      variant="outline"
-                      className="m-3"
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    className="m-3"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    Add to Cart
+                  </Button>
                 ) : (
                   <p className="text-red-600 font-semibold">Out of Stock</p>
                 )}

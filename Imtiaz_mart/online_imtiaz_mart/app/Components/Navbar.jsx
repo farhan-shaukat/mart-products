@@ -10,7 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CartDetail from "./CartDetail";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 
 const NavBar = ({
   quantity,
@@ -81,7 +81,7 @@ const NavBar = ({
       <nav className="container mx-auto flex justify-between items-center px-4 xl:px-0 py-2">
         <div className="flex items-center space-x-5 flex-grow">
           <div className="h-14 m-2">
-            <Image src="/img/logo.jpeg" alt="Logo" width={56} height={56} />
+            <Image src="/Img/logo.jpeg" alt="Logo" width={56} height={56} />
           </div>
 
           <form

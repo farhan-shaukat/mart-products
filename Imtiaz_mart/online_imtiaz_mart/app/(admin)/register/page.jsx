@@ -7,31 +7,26 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
-import OrderDetail from "@/app/Components/OrderDetail";
-import NavBar from "@/app/Components/Navbar";
+import NavBar from "../../Components/Navbar";
+import OrderDetail from "../../Components/OrderDetail";
 
 // Define the form schema using Zod
-const formSchema = () => {
-  if (typeof window !== "undefined") {
-    z.object({
-      name: z.string().min(1, { message: "Name is required." }),
-      email: z.string().email({ message: "Invalid email address." }),
-      password: z
-        .string()
-        .min(8, { message: "Password must be at least 8 characters." }),
-      phoneNumber: z
-        .string()
-        .min(10, { message: "Phone number must be at least 10 digits." }),
-      address: z.string().min(1, { message: "Address is required." }),
-      gender: z.enum(["Male", "Female", "Other"], {
-        message: "Select a valid gender.",
-      }),
-      img: z.instanceof(FileList).refine((files) => files.length === 1, {
-        message: "Please upload an image.",
-      }),
-    });
-  }
-};
+const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required." }),
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters." }),
+  phoneNumber: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 digits." }),
+  address: z.string().min(1, { message: "Address is required." }),
+  gender: z.enum(["Male", "Female", "Other"], {
+    message: "Select a valid gender.",
+  }),
+  img: z.any(), // Use any for the image field
+});
+
 
 const Page = () => {
   const router = useRouter();
@@ -57,219 +52,200 @@ const Page = () => {
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const fetchProducts = async () => {
-        try {
-          const response = await axios.get("http://localhost:8000/products/");
-          setProducts(response.data);
-        } catch (error) {
-          console.error("Error fetching products:", error);
-        }
-      };
-      fetchProducts();
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/products/");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
     }
   }, []);
 
-  const totalQuantity = () => {
-    if (typeof window !== "undefined") {
-      cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    }
-  };
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   const handleCartDelete = (quantityForDel, id) => {
-    if (typeof window !== "undefined") {
-      const cart = cartItems.find((cart) => cart.id === id);
-      if (!cart) return;
+    const cart = cartItems.find((cart) => cart.id === id);
+    if (!cart) return;
 
-      const updatedProducts = products.map((prod) =>
-        prod.id === id
-          ? { ...prod, quantity: prod.quantity + quantityForDel }
-          : prod
-      );
+    const updatedProducts = products.map((prod) =>
+      prod.id === id
+        ? { ...prod, quantity: prod.quantity + quantityForDel }
+        : prod
+    );
 
-      const updatedCart = cartItems.filter((item) => item.id !== id);
-      setCartItems(updatedCart);
-      setProducts(updatedProducts);
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
+    const updatedCart = cartItems.filter((item) => item.id !== id);
+    setCartItems(updatedCart);
+    setProducts(updatedProducts);
+    window.localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   const order = () => {
-    if (typeof window !== "undefined") {
-      cartItems.map((item) => ({
-        productName: item.name,
-        productQuantity: item.quantity,
-        productPrice: item.price,
-      }));
-    }
+    return cartItems.map((item) => ({
+      productName: item.name,
+      productQuantity: item.quantity,
+      productPrice: item.price,
+    }));
   };
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cartJSON = localStorage.getItem("cart");
-      if (cartJSON) {
-        const items = JSON.parse(cartJSON);
-        setCartItems(items);
-      }
-    }
-  }, []);
-
   const ProductQuantityUpdate = async () => {
-    if (typeof window !== "undefined") {
-      try {
-        const access_token = localStorage.getItem("token");
-        const headers = {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${access_token}`,
-        };
-        for (const item of cartItems) {
-          const product = products.find((p) => p.id === item.id);
-          if (product) {
-            const updatedQuantity = product.quantity - item.quantity;
-            if (updatedQuantity < 0) {
-              toast.error(`Not enough stock for ${product.name}`);
-              return;
-            }
-            const formData = new FormData();
-            formData.append("quantity", updatedQuantity.toString());
-            await axios.put(
-              `http://127.0.0.1:8000/products_update_quantity/${item.id}`,
-              formData,
-              { headers }
-            );
-          } else {
-            toast.error(`Product with ID ${item.id} not found`);
+    try {
+      const access_token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${access_token}`,
+      };
+      for (const item of cartItems) {
+        const product = products.find((p) => p.id === item.id);
+        if (product) {
+          const updatedQuantity = product.quantity - item.quantity;
+          if (updatedQuantity < 0) {
+            toast.error(`Not enough stock for ${product.name}`);
+            return;
           }
+          const formData = new FormData();
+          formData.append("quantity", updatedQuantity.toString());
+          await axios.put(
+            `http://127.0.0.1:8000/products_update_quantity/${item.id}`,
+            formData,
+            { headers }
+          );
+        } else {
+          toast.error(`Product with ID ${item.id} not found`);
         }
-        toast.success("Product quantities updated successfully");
-        localStorage.removeItem("cart");
-        localStorage.removeItem("token");
-        router.push("/");
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Error updating product quantities");
       }
+      toast.success("Product quantities updated successfully");
+      localStorage.removeItem("cart");
+      localStorage.removeItem("token");
+      router.push("/");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Error updating product quantities");
     }
   };
 
   const placeOrder = async (values) => {
-    if (typeof window !== "undefined") {
-      try {
-        // User login to get the token
-        const login = await axios.post(
-          "http://127.0.0.1:8001/user_token",
-          new URLSearchParams({
-            username: values.name,
-            password: values.password,
-          }),
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
-        );
-        if (login.status === 200) {
-          const { access_token } = login.data;
-          localStorage.setItem("token", access_token);
-
-          try {
-            const latestUserResponse = await axios.get(
-              `http://127.0.0.1:8002/get_latest_name/`,
-              {
-                params: { username: values.name },
-              }
-            );
-            if (latestUserResponse.status === 200) {
-              // Place order
-              const orderResponse = await axios.post(
-                "http://127.0.0.1:8003/Order_create/",
-                { products: order, userId: latestUserResponse.data.id },
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${access_token}`,
-                  },
-                }
-              );
-
-              if (orderResponse.status === 200) {
-                toast.success("Order placed successfully");
-                await ProductQuantityUpdate();
-              } else {
-                toast.error(
-                  `Order failed with status code: ${orderResponse.status}`
-                );
-              }
-            }
-          } catch (error) {
-            console.error(
-              "Error placing order:",
-              error.response?.data || error.message
-            );
-            toast.error("Error placing order");
-          }
+    try {
+      // User login to get the token
+      const login = await axios.post(
+        "http://127.0.0.1:8001/user_token",
+        new URLSearchParams({
+          username: values.name,
+          password: values.password,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
         }
-      } catch (error) {
-        console.error(
-          "Error fetching user details or logging in:",
-          error.response?.data || error.message
-        );
+      );
+      if (login.status === 200) {
+        const { access_token } = login.data;
+        localStorage.setItem("token", access_token);
+
+        try {
+          const latestUserResponse = await axios.get(
+            `http://127.0.0.1:8002/get_latest_name/`,
+            {
+              params: { username: values.name },
+            }
+          );
+          if (latestUserResponse.status === 200) {
+            // Place order
+            const orderResponse = await axios.post(
+              "http://127.0.0.1:8003/Order_create/",
+              { products: order(), userId: latestUserResponse.data.id },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${access_token}`,
+                },
+              }
+            );
+
+            if (orderResponse.status === 200) {
+              toast.success("Order placed successfully");
+              await ProductQuantityUpdate();
+            } else {
+              toast.error(
+                `Order failed with status code: ${orderResponse.status}`
+              );
+            }
+          }
+        } catch (error) {
+          console.error(
+            "Error placing order:",
+            error.response?.data || error.message
+          );
+          toast.error("Error placing order");
+        }
       }
+    } catch (error) {
+      console.error(
+        "Error fetching user details or logging in:",
+        error.response?.data || error.message
+      );
     }
   };
 
   const onSubmit = async (data) => {
-    if (typeof window !== "undefined") {
-      try {
-        if (order.length > 0) {
-          openModal();
-        }
-        if (!isOpen) {
-          if (typeof window !== "undefined") {
-            const formData = new FormData();
-            formData.append("name", data.name);
-            formData.append("email", data.email);
-            formData.append("password", data.password);
-            formData.append("PhoneNumber", data.phoneNumber);
-            formData.append("Address", data.address);
-            formData.append("Gender", data.gender);
-            if (data.img[0]) formData.append("file", data.img[0]);
-          }
-
-          const response = await axios.post(
-            "http://127.0.0.1:8002/user_register/",
-            formData
-          );
-          if (response.status === 200) {
-            await toast.success("Registration successful!");
-
-            if (order.length > 0) {
-              await placeOrder(data);
-            }
-            router.push("/");
-          } else if (response.status === 400) {
-            toast.error(
-              "Invalid credentials. User already exists. Please check your username and password."
-            );
-          } else if (response.status === 401) {
-            toast.error("Please check your username and password.");
-          } else {
-            toast.error("Unexpected error occurred.");
-          }
-        }
-      } catch (error) {
-        toast.error("Registration failed. Please try again.");
-        console.log(error);
+    try {
+      if (order().length > 0) {
+        openModal();
       }
+  
+      // Validate file input
+      if (data.img && data.img.length !== 1) {
+        toast.error("Please upload exactly one image.");
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("PhoneNumber", data.phoneNumber);
+      formData.append("Address", data.address);
+      formData.append("Gender", data.gender);
+      if (data.img && data.img[0]) formData.append("file", data.img[0]);
+  
+      const response = await axios.post(
+        "http://127.0.0.1:8002/user_register/",
+        formData
+      );
+  
+      if (response.status === 200) {
+        toast.success("Registration successful!");
+  
+        if (order().length > 0) {
+          await placeOrder(data);
+        }
+        router.push("/");
+      } else if (response.status === 400) {
+        toast.error(
+          "Invalid credentials. User already exists. Please check your username and password."
+        );
+      } else if (response.status === 401) {
+        toast.error("Please check your username and password.");
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      console.log(error);
     }
   };
-
+  
   const GotoLogin = async () => {
-    if (typeof window !== "undefined") {
-      router.push("/login");
-    }
+    router.push("/login");
   };
 
   return (
@@ -288,6 +264,7 @@ const Page = () => {
             Registration
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Form fields */}
             <div>
               <label
                 htmlFor="name"
