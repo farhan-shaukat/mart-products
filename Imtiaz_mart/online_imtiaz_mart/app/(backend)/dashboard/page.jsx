@@ -12,7 +12,7 @@ import UpdateProduct from '../../(product_detail)/updateProduct/page';
 import { isAuthenticated } from "../../../Utils/Auth";
 import { useLayoutEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+
 
 const Page = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -352,7 +352,7 @@ const Page = () => {
     // Define the validation schema for Zod
     const categorySchema = z.object({
       name: z.string().min(1, "Name is Required"),
-      img: z.instanceof(File).optional(), // Allow img to be optional
+      img: z.instanceof(File).optional(), 
     });
   
     // Prepare data object for validation
@@ -506,7 +506,7 @@ const Page = () => {
                     key={product.id}
                     className="border border-gray-300 rounded-lg shadow-lg p-4"
                   >
-                    <Image
+                    <img
                       height={80}
                       width={60}
                       className="mx-auto rounded-full h-24 w-24 mb-4"
@@ -619,7 +619,7 @@ const Page = () => {
                           </form>
                         ) : (
                           <div className="border border-gray-300 rounded-lg shadow-lg p-4">
-                            <Image
+                            <img
                               width={60}
                               height={50}
                               className="mx-auto rounded-full h-24 w-24 mb-4"
@@ -917,7 +917,7 @@ const Page = () => {
                                 </form>
                               ) : (
                                 <div className="border border-gray-300 rounded-lg shadow-lg p-4">
-                                  <Image
+                                  <img
                                     height={50}
                                     width={80}
                                     className="mx-auto rounded-full h-24 w-24 mb-4"
@@ -970,7 +970,7 @@ const Page = () => {
                             key={user.id}
                             className="border border-gray-300 rounded-lg shadow-lg p-4"
                           >
-                            <Image
+                            <img
                               height={50}
                               width={80}
                               src={user.imgUrl}

@@ -29,51 +29,37 @@ const NavBar = ({
   const [search, setSearch] = useState(searchProd || "");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       setToken(storedToken);
-    }
   }, []);
 
   const handleLogout = () => {
-    if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("id");
       localStorage.removeItem("role");
       setToken(null);
       router.push("/");
-    }
   };
 
   const openModalCart = () => {
-    if (typeof window !== "undefined") {
       setIsOpen(true);
-    }
   };
 
   const closeModalCart = () => {
-    if (typeof window !== "undefined") {
       setIsOpen(false);
-    }
   };
 
   const handleSearchChange = (e) => {
-    if (typeof window !== "undefined") {
       setSearch(e.target.value);
       setSearchProd(e.target.value);
-    }
   };
 
   const handleSearchSubmit = (e) => {
-    if (typeof window !== "undefined") {
       e.preventDefault();
-    }
   };
 
   const toggleMenu = () => {
-    if (typeof window !== "undefined") {
       setIsMenuOpen(!isMenuOpen);
-    }
   };
 
   return (

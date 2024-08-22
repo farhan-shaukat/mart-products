@@ -37,10 +37,9 @@ const OrderDetail = ({ isOpen, closeModal, prod }) => {
   };
 
   const checkStock = (itemId, quantityItem) => {
-    if (typeof window !== "undefined") {
       const product = prod.find((p) => p.id === itemId);
       return product ? product.quantity >= quantityItem : false;
-    }
+
   };
 
   if (!isModalOpen) return null;

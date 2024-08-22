@@ -92,47 +92,39 @@ const Page = () => {
         }
       }
       localStorage.removeItem("cart");
-      router.push("/dashboard");
       toast.success("Product quantities updated successfully");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error updating product quantities:", error);
       toast.error("Error updating product quantities");
     }
   };
 
-  const placeOrder = async (values) => {
+  const placeOrder = async () => {
     try {
-      const latestUserResponse = await axios.get(
-        `http://127.0.0.1:8002/get_latest_name/`,
+      const access_token = localStorage.getItem("token");
+      const id = localStorage.getItem("id");
+      const orderResponse = await axios.post(
+        "http://127.0.0.1:8003/Order_create/",
+        { products: order(), userId: id },
         {
-          params: { username: values.username },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
         }
       );
 
-      if (latestUserResponse.status === 200) {
-        const access_token = localStorage.getItem("token");
-        const orderResponse = await axios.post(
-          "http://127.0.0.1:8003/Order_create/",
-          { products: order(), userId: latestUserResponse.data.id },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${access_token}`,
-            },
-          }
-        );
-
-        if (orderResponse.status === 200) {
-          toast.success("Order placed successfully");
-          await ProductQuantityUpdate();
-        } else if (orderResponse.status === 422) {
-          toast.error("Order placement failed: Invalid order details.");
-        } else {
-          toast.error(`Order failed with status code: ${orderResponse.status}`);
-        }
+      if (orderResponse.status === 200) {
+        toast.success("Order placed successfully");
+        await ProductQuantityUpdate();
+      } else if (orderResponse.status === 422) {
+        toast.error("Order placement failed: Invalid order details.");
+      } else {
+        toast.error(`Order failed with status code: ${orderResponse.status}`);
       }
     } catch (error) {
-      console.log(error.response.data.detail )
+      console.log(error.response?.data?.detail);
       console.error("Error placing order:", error);
       toast.error("Error placing order");
     }
@@ -140,10 +132,12 @@ const Page = () => {
 
   const onSubmit = async (values) => {
     try {
+      // If cartItems exist, open modal for order confirmation
       if (cartItems.length > 0) {
         openModal();
       }
-      if (!isOpen) {
+
+      if (!isOpen && !openModal()) {
         const response = await axios.post(
           "http://127.0.0.1:8001/user_token",
           new URLSearchParams({
@@ -156,42 +150,49 @@ const Page = () => {
             },
           }
         );
+
         if (response.status === 200) {
           const { access_token } = response.data;
           localStorage.setItem("token", access_token);
           const latestUserResponse = await axios.get(
             `http://127.0.0.1:8002/get_latest_name/`,
-            {
-              params: { username: values.username },
-            }
+            { params: { username: values.username } }
           );
 
-          if (cartItems.length > 0) {
-            await placeOrder(values);
-          }
-
-          if (latestUserResponse.data.role === "Admin") {
-            localStorage.setItem("role", latestUserResponse.data.role);
+          const user = latestUserResponse.data;
+          if (user.role === "Admin") {
+            localStorage.setItem("role", user.role);
             toast.success("Login successful.");
             router.push("/dashboard");
           } else {
-            localStorage.setItem("id", latestUserResponse.data.id);
-            toast.success("Login successful.");
+            localStorage.setItem("id", user.id);
+
+            if (cartItems.length > 0) {
+              await placeOrder();
+              toast.success("Login successful.");
+            } else {
+              toast.success("Login successful.");
+            }
             router.push("/dashboard");
           }
-        } else if (response.status === 400) {
-          toast.error(
-            "Invalid credentials. Please check your username and password."
-          );
-        } else if (response.status === 401) {
-          toast.error("Unauthorized. Please check your username and password.");
         } else {
-          toast.error("Unexpected error occurred.");
+          handleLoginError(response);
         }
       }
     } catch (error) {
-      toast.error("Login failed. Please try again.");
-      console.error(error);
+      handleLoginError(error);
+    }
+  };
+
+  const handleLoginError = (responseOrError) => {
+    if (responseOrError.response?.status === 400) {
+      toast.error(
+        "Invalid credentials. Please check your username and password."
+      );
+    } else if (responseOrError.response?.status === 401) {
+      toast.error("Unauthorized. Please check your username and password.");
+    } else {
+      toast.error("Unexpected error occurred.");
     }
   };
 
@@ -270,15 +271,18 @@ const Page = () => {
               type="submit"
               className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Login
+              Submit
             </button>
           </form>
         </div>
       </div>
-      <ToastContainer />
+
+      {/* Modal for Order Confirmation */}
       {isOpen && (
         <OrderDetail isOpen={isOpen} closeModal={closeModal} prod={products} />
       )}
+
+      <ToastContainer />
     </>
   );
 };

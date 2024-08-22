@@ -6,17 +6,17 @@ from typing import List, Dict
 import httpx
 from fastapi.security import OAuth2PasswordBearer
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://127.0.0.1:8001/user_token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://auth:8001/user_token")
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
+        response = await client.get("http://auth:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
         
 async def verify_user(username: str) -> Dict[str, str]:
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"http://127.0.0.1:8002/get_latest_name/", params={"username": username})
+        response = await client.get(f"http://user-service:8002/get_latest_name/", params={"username": username})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User Not Registered")
         

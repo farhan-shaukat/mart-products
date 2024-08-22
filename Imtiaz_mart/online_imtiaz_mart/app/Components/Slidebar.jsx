@@ -14,14 +14,12 @@ const Sidebar = ({
   const [role, setRole] = useState(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem("token");
       const storedId = localStorage.getItem("id");
       const storedRole = localStorage.getItem("role");
       setToken(storedToken);
       setId(storedId);
       setRole(storedRole);
-    }
   }, [setId, setRole, setToken]);
 
   return (

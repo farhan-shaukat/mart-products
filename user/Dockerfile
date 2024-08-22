@@ -5,20 +5,26 @@ FROM python:3.12
 WORKDIR /code
 
 # Copy the Poetry configuration files
-COPY poetry.lock pyproject.toml ./
+COPY poetry.lock  ./
+COPY pyproject.toml ./
 
 # Install Poetry and project dependencies
 RUN pip install --upgrade pip && \
     pip install poetry && \
-    poetry config virtualenvs.create false && \
+    # poetry config virtualenvs.create false && \
     poetry lock --no-update && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install 
 
 # Copy the rest of the application code
 COPY . .
 
+# Copy the env file
+COPY .env .
+
 # Install python-dotenv for loading environment variables from .env
 RUN pip install python-dotenv
+
+RUN pip install uvicorn
 
 # Expose the port the app runs on
 EXPOSE 8002

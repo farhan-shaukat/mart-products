@@ -75,11 +75,6 @@ async def user_register(
     session.refresh(new_user)
     return new_user
 
-@router.get("/get_latest/", response_model = UserRegister, tags = ['User'])
-async def read_latest_user(session: Session = Depends(get_session)):
-    statement = select(UserRegister).order_by(UserRegister.id.desc()).limit(1)
-    latest_user = session.exec(statement).first()
-    return latest_user
 
 @router.put("/user_update/{id}",response_model = UserRegister, tags = ['User'])
 async def user_update(

@@ -27,7 +27,6 @@ const formSchema = z.object({
   img: z.any(), // Use any for the image field
 });
 
-
 const Page = () => {
   const router = useRouter();
   const {
@@ -198,52 +197,52 @@ const Page = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (order().length > 0) {
+      if (cartItems.length > 0) {
         openModal();
       }
-  
-      // Validate file input
+
       if (data.img && data.img.length !== 1) {
         toast.error("Please upload exactly one image.");
         return;
       }
-  
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      formData.append("PhoneNumber", data.phoneNumber);
-      formData.append("Address", data.address);
-      formData.append("Gender", data.gender);
-      if (data.img && data.img[0]) formData.append("file", data.img[0]);
-  
-      const response = await axios.post(
-        "http://127.0.0.1:8002/user_register/",
-        formData
-      );
-  
-      if (response.status === 200) {
-        toast.success("Registration successful!");
-  
-        if (order().length > 0) {
-          await placeOrder(data);
-        }
-        router.push("/");
-      } else if (response.status === 400) {
-        toast.error(
-          "Invalid credentials. User already exists. Please check your username and password."
+      if (!isOpen && !openModal()) {
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("email", data.email);
+        formData.append("password", data.password);
+        formData.append("PhoneNumber", data.phoneNumber);
+        formData.append("Address", data.address);
+        formData.append("Gender", data.gender);
+        if (data.img && data.img[0]) formData.append("file", data.img[0]);
+
+        const response = await axios.post(
+          "http://127.0.0.1:8002/user_register/",
+          formData
         );
-      } else if (response.status === 401) {
-        toast.error("Please check your username and password.");
-      } else {
-        toast.error("Unexpected error occurred.");
+
+        if (response.status === 200) {
+          toast.success("Registration successful!");
+
+          if (order().length > 0) {
+            await placeOrder(data);
+          }
+          router.push("/");
+        } else if (response.status === 400) {
+          toast.error(
+            "Invalid credentials. User already exists. Please check your username and password."
+          );
+        } else if (response.status === 401) {
+          toast.error("Please check your username and password.");
+        } else {
+          toast.error("Unexpected error occurred.");
+        }
       }
     } catch (error) {
       toast.error("Registration failed. Please try again.");
       console.log(error);
     }
   };
-  
+
   const GotoLogin = async () => {
     router.push("/login");
   };

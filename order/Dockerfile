@@ -10,9 +10,8 @@ COPY poetry.lock pyproject.toml ./
 # Install Poetry and project dependencies
 RUN pip install --upgrade pip && \
     pip install poetry && \
-    poetry config virtualenvs.create false && \
     poetry lock --no-update && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --no-dev
 
 # Copy the rest of the application code
 COPY . .
@@ -24,4 +23,4 @@ RUN pip install python-dotenv
 EXPOSE 8003
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "order.main:app", "--host", "0.0.0.0", "--port", "8003"]
+CMD ["poetry", "run", "uvicorn", "--proxy-headers", "order.main:app", "--host", "0.0.0.0", "--port", "8003"]

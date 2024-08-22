@@ -2,20 +2,25 @@
 FROM python:3.12
 
 # Set the working directory in the container
-WORKDIR /code
+WORKDIR /auth
 
 # Copy the Poetry configuration files
-COPY poetry.lock pyproject.toml ./
+COPY pyproject.toml ./
+COPY poetry.lock  ./
+
 
 # Install Poetry and project dependencies
 RUN pip install --upgrade pip && \
     pip install poetry && \
-    poetry config virtualenvs.create false && \
     poetry lock --no-update && \
-    poetry install --no-dev --no-interaction --no-ansi
+    # poetry config virtualenvs.create false && \
+    poetry install 
 
 # Copy the rest of the application code
 COPY . .
+
+# Copy env file
+COPY .env ./
 
 # Install python-dotenv for loading environment variables from .env
 RUN pip install python-dotenv

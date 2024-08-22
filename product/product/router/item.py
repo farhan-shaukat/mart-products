@@ -19,11 +19,11 @@ URL = os.getenv("URL")
 API_KEY = os.getenv("API_KEY")
 supabase = create_client(URL, API_KEY)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8001/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://auth:8001/token")
 
 async def verify_token(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://127.0.0.1:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
+        response = await client.get("http://auth:8001/verify_token", headers={"Authorization": f"Bearer {token}"})
         if response.status_code != 200:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
