@@ -1,0 +1,64 @@
+services:
+  imtiaz_mart:
+    build:
+      context: ./Imtiaz_mart/online_imtiaz_mart
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - Imtiaz_mart
+    container_name: imtiaz_mart
+
+  products:
+    build:
+      context: ./product
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./product/.env
+    networks:
+      - Imtiaz_mart
+    container_name: product
+
+  user:
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./user/.env
+    networks:
+      - Imtiaz_mart
+    container_name: user-service
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./auth/.env
+    networks:
+      - Imtiaz_mart
+    container_name: auth  
+
+  order:
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    env_file:
+    - ./order/.env
+    networks:
+    - Imtiaz_mart
+    container_name: order
+
+networks:
+  Imtiaz_mart:
+    driver: bridge

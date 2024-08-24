@@ -3,7 +3,7 @@ FROM node:18 AS build
 
 WORKDIR /app/frontend
 
-# Copy package.json and package-lock.json first
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install dependencies
@@ -20,7 +20,7 @@ FROM node:18-alpine AS production
 
 WORKDIR /app/frontend
 
-# Copy the build output from the previous stage
+# Copy the build output and necessary files from the previous stage
 COPY --from=build /app/frontend/.next ./.next
 COPY --from=build /app/frontend/node_modules ./node_modules
 COPY --from=build /app/frontend/public ./public

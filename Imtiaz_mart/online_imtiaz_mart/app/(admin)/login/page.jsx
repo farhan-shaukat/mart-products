@@ -132,8 +132,7 @@ const Page = () => {
 
   const onSubmit = async (values) => {
     try {
-      // If cartItems exist, open modal for order confirmation
-      if (cartItems.length > 0) {
+      if (cartItems.length() > 0) {
         openModal();
       }
 

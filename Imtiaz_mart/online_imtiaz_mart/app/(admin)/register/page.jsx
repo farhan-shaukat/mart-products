@@ -197,7 +197,7 @@ const Page = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (cartItems.length > 0) {
+      if (cartItems.length() > 0) {
         openModal();
       }
 
