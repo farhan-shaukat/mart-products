@@ -40,8 +40,6 @@ const Page = () => {
         const response = await axios.get("http://localhost:8000/products/");
         setProducts(response.data);
       } catch (error) {
-        console.error("Error fetching products:", error);
-        toast.error("Failed to fetch products.");
       }
     };
     fetchProducts();
@@ -61,6 +59,9 @@ const Page = () => {
       productPrice: item.price,
     }));
   };
+
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
@@ -132,11 +133,11 @@ const Page = () => {
 
   const onSubmit = async (values) => {
     try {
-      if (cartItems.length() > 0) {
+      if (cartItems.length > 0  ) {
         openModal();
       }
 
-      if (!isOpen && !openModal()) {
+      if (!isOpen) {
         const response = await axios.post(
           "http://127.0.0.1:8001/user_token",
           new URLSearchParams({
@@ -179,6 +180,7 @@ const Page = () => {
         }
       }
     } catch (error) {
+      console.log(error)
       handleLoginError(error);
     }
   };
@@ -194,8 +196,6 @@ const Page = () => {
       toast.error("Unexpected error occurred.");
     }
   };
-
-  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleCartDelete = (quantityForDel, id) => {
     const cart = cartItems.find((cart) => cart.id === id);
@@ -275,11 +275,7 @@ const Page = () => {
           </form>
         </div>
       </div>
-
-      {/* Modal for Order Confirmation */}
-      {isOpen && (
         <OrderDetail isOpen={isOpen} closeModal={closeModal} prod={products} />
-      )}
 
       <ToastContainer />
     </>

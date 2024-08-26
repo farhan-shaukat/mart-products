@@ -197,7 +197,7 @@ const Page = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (cartItems.length() > 0) {
+      if (cartItems.length > 0) {
         openModal();
       }
 
@@ -205,7 +205,7 @@ const Page = () => {
         toast.error("Please upload exactly one image.");
         return;
       }
-      if (!isOpen && !openModal()) {
+      if (!isOpen) {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("email", data.email);

@@ -6,34 +6,26 @@ const OrderDetail = ({ isOpen, closeModal, prod }) => {
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
       setIsModalOpen(isOpen);
-    }
   }, [isOpen]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
       const cartJSON = localStorage.getItem("cart");
       if (cartJSON) {
         const items = JSON.parse(cartJSON);
         setCartItems(items);
-      }
     }
   }, []);
 
   const closeModalSystem = () => {
-    if (typeof window !== "undefined") {
       closeModal();
-    }
   };
 
   const totalBill = () => {
-    if (typeof window !== "undefined") {
       return cartItems.reduce(
         (total, item) => total + item.price * item.quantity,
         0
       );
-    }
   };
 
   const checkStock = (itemId, quantityItem) => {

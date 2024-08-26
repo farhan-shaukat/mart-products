@@ -24,11 +24,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 async def verify_user(username: str) -> Dict[str, str]:
-    print("\nInside verify_user function\n")
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"http://user-service:8002/get_latest_name/", params={"username": username})
-            print("\n\n\nResponse received with status code:", response.status_code)
         except httpx.RequestError as e:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Service unavailable: {str(e)}")
         
