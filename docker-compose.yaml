@@ -54,11 +54,29 @@ services:
     ports:
       - "8003:8003"
     env_file:
-    - ./order/.env
+      - ./order/.env
     networks:
-    - Imtiaz_mart
+      - Imtiaz_mart
     container_name: order
+
+  db:
+    image: postgres:14
+    container_name: postgresDatabase
+    environment:
+      - POSTGRES_USER=odmfxwfjkmjqrrcyueqs
+      - POSTGRES_PASSWORD=G8QmA%24GAX4yKhZG
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - Imtiaz_mart
 
 networks:
   Imtiaz_mart:
     driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

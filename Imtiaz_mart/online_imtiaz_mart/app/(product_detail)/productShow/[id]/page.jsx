@@ -2,37 +2,45 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../../components/ui/button";
 import { useParams } from "next/navigation";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import NavBar from "../../../Components/Navbar";
 import "react-toastify/dist/ReactToastify.css";
+
+// Server Action to fetch products
+async function fetchProducts() {
+  const res = await fetch("http://127.0.0.1:8000/products/");
+  if (!res.ok) {
+    throw new Error("Failed to fetch products");
+  }
+  return await res.json();
+}
 
 const ProductModal = () => {
   const { id } = useParams();
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
 
+  // Fetch products server-side
+  async function loadProducts() {
+    try {
+      const fetchedProducts = await fetchProducts();
+      setProducts(fetchedProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  }
+
+  loadProducts();
+
+  // Retrieve cart from local storage
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/products/");
-        if (response.status === 200) {
-          setProducts(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
-    fetchProducts();
-
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
   }, []);
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find((item) => item.id === product.id);
       const updatedCart = existingProduct
@@ -49,9 +57,7 @@ const ProductModal = () => {
 
     setProducts((prevProducts) =>
       prevProducts.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
+        item.id === product.id ? { ...item, quantity: item.quantity - 1 } : item
       )
     );
 
@@ -90,7 +96,7 @@ const ProductModal = () => {
         products={products}
         handleDelete={handleCartDelete}
       />
-
+  
       <div className="text-center flex mx-auto">
         <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-4xl overflow-y-auto h-screen">
           {product ? (
@@ -128,26 +134,15 @@ const ProductModal = () => {
               )}
             </div>
           ) : (
-            <p className="text-lg font-semibold">Product not found</p>
+            <p></p>
           )}
         </div>
       </div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        className="text-sm sm:text-base md:text-lg"
-      />
+  
+      <ToastContainer />
     </>
   );
+  
 };
 
 export default ProductModal;
