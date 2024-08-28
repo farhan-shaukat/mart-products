@@ -63,9 +63,9 @@ services:
     image: postgres:14
     container_name: postgresDatabase
     environment:
-      - POSTGRES_USER=odmfxwfjkmjqrrcyueqs
+      - POSTGRES_USER=online_imtiaz_mart
       - POSTGRES_PASSWORD=G8QmA%24GAX4yKhZG
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=Imtiaz_mart
     ports:
       - "5432:5432"
     volumes:
