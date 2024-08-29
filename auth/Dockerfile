@@ -29,4 +29,4 @@ RUN pip install python-dotenv
 EXPOSE 8001
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "auth.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["poetry", "run", "uvicorn", "auth.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]

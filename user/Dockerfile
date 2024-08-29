@@ -30,4 +30,4 @@ RUN pip install uvicorn
 EXPOSE 8002
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "user.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["poetry", "run", "uvicorn", "user.main:app", "--host", "0.0.0.0", "--port", "8002","--reload"]

@@ -31,5 +31,5 @@ RUN npm install --production
 
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application with developement server 
+CMD ["npm", "run", "dev"]

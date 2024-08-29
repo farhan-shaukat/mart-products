@@ -23,4 +23,4 @@ RUN pip install python-dotenv
 EXPOSE 8003
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "--proxy-headers", "order.main:app", "--host", "0.0.0.0", "--port", "8003"]
+CMD ["poetry", "run", "uvicorn","order.main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]

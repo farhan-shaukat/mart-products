@@ -5,8 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
+    # environment:
+    #   - NODE_ENV=production
+    volumes:
+      - ./Imtiaz_mart/online_imtiaz_mart:/app # Bound Mount for live codes changes
     networks:
       - Imtiaz_mart
     container_name: imtiaz_mart
@@ -19,6 +21,8 @@ services:
       - "8000:8000"
     env_file:
       - ./product/.env
+    volumes:
+      - ./product:/app # Bimd Mount for Live codes changes
     networks:
       - Imtiaz_mart
     container_name: product
@@ -31,6 +35,8 @@ services:
       - "8002:8002"
     env_file:
       - ./user/.env
+    volumes:
+      - ./user:/app # Bound monut for lives codes changes 
     networks:
       - Imtiaz_mart
     container_name: user-service
@@ -43,6 +49,8 @@ services:
       - "8001:8001"
     env_file:
       - ./auth/.env
+    volumes:
+      - ./auth/:/app # Bound mount for lives code changes
     networks:
       - Imtiaz_mart
     container_name: auth  
@@ -55,6 +63,8 @@ services:
       - "8003:8003"
     env_file:
       - ./order/.env
+    volumes:
+      - ./order:/app
     networks:
       - Imtiaz_mart
     container_name: order
@@ -79,4 +89,9 @@ networks:
 
 volumes:
   pgdata:
+  Imtiaz_martonline_imtiaz_mart:
+  auth:
+  order:
+  user:
+  product:
     driver: local
