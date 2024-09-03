@@ -9,11 +9,12 @@ COPY poetry.lock  ./
 COPY pyproject.toml ./
 
 # Install Poetry and project dependencies
-RUN pip install --upgrade pip && \
-    pip install poetry && \
-    # poetry config virtualenvs.create false && \
+RUN pip install --upgrade pip --root-user-action=ignore && \
+    pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple poetry && \
     poetry lock --no-update && \
-    poetry install 
+    poetry install
+
+
 
 # Copy the rest of the application code
 COPY . .

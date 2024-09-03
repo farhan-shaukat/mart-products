@@ -8,13 +8,12 @@ WORKDIR /auth
 COPY pyproject.toml ./
 COPY poetry.lock  ./
 
-
 # Install Poetry and project dependencies
-RUN pip install --upgrade pip && \
-    pip install poetry && \
+RUN pip install --upgrade pip --root-user-action=ignore && \
+    pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple poetry && \
     poetry lock --no-update && \
-    # poetry config virtualenvs.create false && \
-    poetry install 
+    poetry install
+
 
 # Copy the rest of the application code
 COPY . .
