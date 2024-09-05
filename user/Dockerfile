@@ -2,7 +2,7 @@
 FROM python:3.12
 
 # Set the working directory in the container
-WORKDIR /code
+WORKDIR /user
 
 # Copy the Poetry configuration files
 COPY poetry.lock  ./
@@ -10,9 +10,10 @@ COPY pyproject.toml ./
 
 # Install Poetry and project dependencies
 RUN pip install --upgrade pip --root-user-action=ignore && \
-    pip install --index-url https://pypi.tuna.tsinghua.edu.cn/simple poetry && \
+    pip install poetry && \
     poetry lock --no-update && \
     poetry install
+
 
 
 

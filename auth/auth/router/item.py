@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form, Query
-from sqlmodel import Session
+from sqlmodel import Session #type: ignore
 from auth.database import get_session
 from auth.auth_security import create_access_token, SECRET_KEY, ALGORITHM
-from passlib.context import CryptContext
+from passlib.context import CryptContext #type: ignore
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated, Dict
-from jose import jwt, JWTError
+from jose import jwt, JWTError #type: ignore
 import httpx
-from confluent_kafka import Producer, KafkaException
+from confluent_kafka import Producer #type: ignore
 
 router = APIRouter()
 
@@ -71,10 +71,7 @@ async def authenticate_user(user: Annotated[OAuth2PasswordRequestForm, Depends()
 # Route to handle login and token generation
 @router.post("/token")
 async def login(user: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user_data = await authenticate_user(user)
-    # Produce a Kafka message when the user logs in successfully
-    producer.produce('user-login-topic', user_data['username'].encode('utf-8'), callback = message_delivery_report)
-    producer.flush()
+    await authenticate_user(user)
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -94,6 +91,9 @@ async def verify_token_api(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
+         # Produce a Kafka message when the user logs in successfully
+        producer.produce('add-product-category', username, callback = message_delivery_report)
+        producer.flush()
         if username is None:
             raise JWTError
         return username

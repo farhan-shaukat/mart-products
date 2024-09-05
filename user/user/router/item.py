@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, Query, status
-from sqlmodel import Session, select, or_
+from sqlmodel import Session, select, or_ #type: ignore
 from user.model import UserRegister
 from user.database import get_session
 from typing import List
-from supabase import create_client
+from supabase import create_client #type: ignore
 import os
 from dotenv import load_dotenv
 import uuid
-from passlib.context import CryptContext
-from confluent_kafka import Consumer, KafkaError
+from passlib.context import CryptContext #type: ignore
+from confluent_kafka import Consumer, KafkaError #type: ignore
 import asyncio
 import logging
 

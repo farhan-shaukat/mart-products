@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
+from jose import jwt, JWTError #type: ignore
 from fastapi import HTTPException, status
 
 SECRET_KEY = "d3282d229b0250d19c5358723f94d9285f9b69c4"

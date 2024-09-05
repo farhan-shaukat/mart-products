@@ -1,4 +1,4 @@
-from sqlmodel import create_engine, Session, SQLModel
+from sqlmodel import create_engine, Session, SQLModel #type: ignore
 
 from dotenv import load_dotenv
 import os 

@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel #type: ignore
 from typing import List
 from pydantic import BaseModel
 class OrderRegister(SQLModel, table = True):
@@ -9,8 +9,6 @@ class OrderRegister(SQLModel, table = True):
     productPrice: float = Field(nullable = False)
     totalPrice: float = Field(nullable = False, default = 0.0)
     status : str = Field(default = "Pending", max_length = 50)
-
-
 
 class OrderCreateResponse(BaseModel):
     orders: List[OrderRegister]

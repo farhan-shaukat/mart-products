@@ -1,10 +1,45 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body, Form
-from sqlmodel import Session, select
+from sqlmodel import Session, select #type: ignore
 from order.model import OrderRegister, OrderCreateResponse
 from order.database import get_session
 from typing import List, Dict
 import httpx
 from fastapi.security import OAuth2PasswordBearer
+import asyncio
+from confluent_kafka import Consumer, KafkaError # type: ignore
+
+# Kafka Consumer Configuration
+consumer_config = {
+    'bootstrap.servers': '192.168.18.20:9092', 
+    'group.id': 'order-group',
+    'auto.offset.reset': 'earliest'
+}
+consumer = Consumer(**consumer_config)
+
+async def consume_messages():
+    """Kafka message consumer to handle category-related Kafka messages."""
+    consumer.subscribe(['add-product-category'])
+    while True:
+        msg = consumer.poll(1.0)  # Timeout set to 1 second
+        if msg is None:
+            continue
+        if msg.error():
+            if msg.error().code() == KafkaError._PARTITION_EOF:
+                continue
+            else:
+                print(f"\n\nConsumer error: {msg.error()}\n\n")
+                break
+        data = msg.value().decode('utf-8')
+        print(f"\n\nReceived Kafka message: {data}\n\n")
+
+# Kafka consumer task to be run in the background
+kafka_consumer_task = None
+
+async def start_kafka_consumer():
+    global kafka_consumer_task
+    if not kafka_consumer_task:
+        kafka_consumer_task = asyncio.create_task(consume_messages())
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://auth:8001/user_token")
 
@@ -53,7 +88,8 @@ async def Order_create(
             productPrice = productPrice,
             totalPrice = order_total_price
         )
-
+        
+        start_kafka_consumer()
         session.add(new_order)
         orders.append(new_order)
 
@@ -127,6 +163,8 @@ async def update_order_status(
     for order in orders:
         order.status = status
         total_price += order.productPrice
+    
+    start_kafka_consumer()
     
     session.commit()
     

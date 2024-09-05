@@ -1,4 +1,4 @@
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel #type: ignore
 
 
 class Category(SQLModel, table=True):
